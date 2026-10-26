@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111318">
+  <meta name="description" content="Order coffee and food to your seat at Product Designer Gym Cafe.">
+  <title>Order to your table · Product Designer Gym Cafe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <link rel="stylesheet" href="../design-system/components/bundle.css">
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { min-height: 100vh; margin: 0; background: var(--background); color: var(--text); font: var(--text-body); }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { color: var(--primary-hover); }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: var(--focus-ring-width) solid var(--primary); outline-offset: 2px; }
+    [hidden] { display: none !important; }
+    .shell { width: min(1200px, calc(100% - var(--space-5) - var(--space-5))); margin-inline: auto; }
+    .site-header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--background) 94%, transparent); border-bottom: var(--border-width) solid var(--border); backdrop-filter: blur(14px); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 76px; }
+    .brand { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--text); text-decoration: none; min-width: 0; }
+    .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border: var(--border-width) solid var(--primary); border-radius: var(--radius-2); color: var(--primary); font-weight: 700; letter-spacing: -0.06em; flex: none; }
+    .brand-name { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-name strong { font: var(--text-caption); font-weight: 700; }
+    .brand-name span { color: var(--text-muted); font: var(--text-small); }
+    .header-actions { display: flex; align-items: center; gap: var(--space-3); }
+    .table-pill { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-full); color: var(--text-muted); white-space: nowrap; }
+    .table-pill strong { color: var(--text); }
+    .stepper { display: flex; align-items: center; gap: var(--space-2); overflow-x: auto; padding-block: var(--space-3); scrollbar-width: none; }
+    .stepper::-webkit-scrollbar { display: none; }
+    .step-tab { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: var(--border-width) solid transparent; border-radius: var(--radius-full); background: transparent; color: var(--text-muted); white-space: nowrap; cursor: pointer; }
+    .step-tab:disabled { opacity: .5; cursor: not-allowed; }
+    .step-tab[aria-current="step"] { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 9%, var(--surface)); color: var(--text); }
+    .step-number { display: grid; place-items: center; width: 24px; height: 24px; border: var(--border-width) solid currentColor; border-radius: var(--radius-full); font-size: 12px; font-weight: 700; }
+    .page-main { min-height: calc(100vh - 160px); padding-block: var(--space-7); }
+    .step-view { animation: appear .18s ease-out; }
+    @keyframes appear { from { opacity: .45; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .eyebrow { margin: 0; color: var(--primary); font: var(--text-caption); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .page-title { margin: var(--space-2) 0 0; font: var(--text-h1); letter-spacing: -.035em; text-wrap: balance; }
+    .page-lede { max-width: 660px; margin: var(--space-3) 0 0; color: var(--text-muted); }
+    .section-intro { margin-bottom: var(--space-6); }
+    .panel { min-width: 0; background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-4); }
+    .panel-pad { padding: var(--space-5); }
+    .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+    .panel-heading h2, .panel-heading h3 { margin: 0; font: var(--text-h4); }
+    .muted { color: var(--text-muted); }
+    .small { font: var(--text-small); }
+    .caption { font: var(--text-caption); }
+    .table-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, .8fr); align-items: start; gap: var(--space-5); }
+    .floor-panel { padding: var(--space-5); }
+    .floor-plan { margin-top: var(--space-4); padding: var(--space-4); border: var(--border-width) dashed var(--border); border-radius: var(--radius-3); background: color-mix(in srgb, var(--background) 55%, var(--surface)); }
+    .map-window { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); padding: var(--space-2) var(--space-3); border-radius: var(--radius-2); background: var(--surface); color: var(--text-muted); }
+    .window-line { height: 5px; flex: 1; border-radius: var(--radius-full); background: var(--border); }
+    .table-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); }
+    .table-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); min-height: 100px; padding: var(--space-2); border: var(--border-width) solid var(--border); border-radius: var(--radius-3); background: var(--surface); cursor: pointer; transition: border-color .12s, background-color .12s, transform .12s; }
+    .table-tile:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .table-tile[aria-pressed="true"] { border: var(--border-width) solid var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--surface)); }
+    .table-tile__number { font: var(--text-h4); font-weight: 700; letter-spacing: -.02em; }
+    .table-tile__seats { color: var(--text-muted); font: var(--text-small); }
+    .table-tile__shape { width: 36px; height: 5px; border-radius: var(--radius-full); background: var(--border); }
+    .map-zone { margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--border-width) solid var(--border); color: var(--text-muted); font: var(--text-small); }
+    .map-legend { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-4); color: var(--text-muted); font: var(--text-small); }
+    .legend-item { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .legend-dot { width: 12px; height: 12px; border-radius: var(--radius-1); border: var(--border-width) solid var(--border); background: var(--surface); }
+    .legend-dot--selected { border: var(--border-width) solid var(--primary); background: color-mix(in srgb, var(--primary) 20%, var(--surface)); }
+    .join-panel { position: sticky; top: 148px; display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5); }
+    .join-icon { display: grid; place-items: center; width: 52px; height: 52px; border: var(--border-width) solid color-mix(in srgb, var(--primary) 65%, var(--border)); border-radius: var(--radius-3); color: var(--primary); background: color-mix(in srgb, var(--primary) 9%, var(--surface)); }
+    .join-panel h2 { margin: 0; font: var(--text-h4); }
+    .join-panel p { margin: 0; color: var(--text-muted); }
+    .join-divider { height: var(--border-width); background: var(--border); }
+    .qr-callout { display: flex; gap: var(--space-3); padding: var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-2); }
+    .qr-callout svg { flex: none; color: var(--primary); }
+    .join-message { min-height: 20px; margin: 0; color: var(--warning) !important; font: var(--text-caption); }
+    .full { width: 100%; }
+    .menu-heading-row { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+    .menu-heading-row h1 { margin: var(--space-2) 0 0; font: var(--text-h1); letter-spacing: -.035em; }
+    .menu-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 365px); align-items: start; gap: var(--space-5); }
+    .menu-main { min-width: 0; }
+    .category-list { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-5); }
+    .category-chip { min-height: 40px; padding: var(--space-2) var(--space-4); border: var(--border-width) solid var(--border); border-radius: var(--radius-full); background: transparent; color: var(--text-muted); cursor: pointer; }
+    .category-chip:hover { border-color: var(--primary); color: var(--text); }
+    .category-chip[aria-pressed="true"] { border-color: var(--primary); background: var(--primary); color: var(--on-primary); font-weight: 700; }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+    .menu-card { display: flex; flex-direction: column; min-width: 0; padding: var(--space-4); background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-3); }
+    .item-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+    .item-visual { display: grid; place-items: center; min-height: 92px; margin-bottom: var(--space-3); border-radius: var(--radius-2); border: var(--border-width) solid var(--border); background: color-mix(in srgb, var(--primary) 7%, var(--background)); font: var(--text-h1); }
+    .item-category { align-self: flex-start; margin-bottom: var(--space-2); color: var(--primary); font: var(--text-small); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .item-name { margin: 0; font: var(--text-h4); letter-spacing: -.02em; }
+    .item-price { flex: none; color: var(--text); font-weight: 700; white-space: nowrap; }
+    .item-description { margin: var(--space-2) 0 var(--space-3); color: var(--text-muted); font: var(--text-caption); }
+    .tag-list { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-4); }
+    .tag { padding: var(--space-1) var(--space-2); border-radius: var(--radius-1); background: var(--background); color: var(--text-muted); font: var(--text-small); }
+    .menu-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: auto; }
+    .menu-actions .pdg-btn { min-height: 40px; padding-inline: var(--space-3); }
+    .text-button { border: 0; background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; padding: var(--space-2) 0; text-align: left; }
+    .text-button:hover { color: var(--primary-hover); text-decoration: underline; }
+    .order-sidebar { position: sticky; top: 148px; display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+    .cart-panel, .shared-panel { padding: var(--space-5); }
+    .cart-empty { display: grid; justify-items: center; text-align: center; gap: var(--space-2); padding: var(--space-5) var(--space-3); border: var(--border-width) dashed var(--border); border-radius: var(--radius-2); }
+    .cart-empty svg { color: var(--text-muted); }
+    .cart-empty strong { font-weight: 700; }
+    .cart-empty p { max-width: 240px; margin: 0; color: var(--text-muted); font: var(--text-caption); }
+    .cart-lines { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-4); }
+    .cart-line { padding-bottom: var(--space-3); border-bottom: var(--border-width) solid var(--border); }
+    .cart-line:last-child { padding-bottom: 0; border-bottom: 0; }
+    .cart-line__top { display: flex; justify-content: space-between; gap: var(--space-3); }
+    .cart-line__title { margin: 0; font-weight: 700; }
+    .cart-line__meta { margin: var(--space-1) 0 0; color: var(--text-muted); font: var(--text-small); }
+    .cart-line__actions { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+    .qty-control { display: inline-flex; align-items: center; gap: var(--space-2); padding: 2px; border: var(--border-width) solid var(--border); border-radius: var(--radius-full); }
+    .qty-control button { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--text); cursor: pointer; }
+    .qty-control button:hover { background: var(--background); color: var(--primary); }
+    .qty-control span { min-width: 14px; text-align: center; font: var(--text-caption); font-weight: 700; }
+    .cart-line__price { padding-top: 2px; white-space: nowrap; font-weight: 700; }
+    .cart-total { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); padding-top: var(--space-4); border-top: var(--border-width) solid var(--border); }
+    .total-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+    .total-row strong { font-weight: 700; }
+    .cart-footnote { margin: 0; color: var(--text-muted); font: var(--text-small); }
+    .shared-panel h2 { margin: 0; font: var(--text-h4); }
+    .shared-subtitle { margin: var(--space-1) 0 var(--space-4); color: var(--text-muted); font: var(--text-caption); }
+    .shared-orders { display: flex; flex-direction: column; gap: var(--space-3); }
+    .shared-order { display: flex; gap: var(--space-3); align-items: flex-start; }
+    .avatar { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: var(--radius-full); background: color-mix(in srgb, var(--primary) 12%, var(--background)); border: var(--border-width) solid var(--border); color: var(--primary); font: var(--text-small); font-weight: 700; }
+    .shared-order__body { flex: 1; min-width: 0; }
+    .shared-order__top { display: flex; justify-content: space-between; gap: var(--space-2); }
+    .shared-order__top strong { font-weight: 700; }
+    .shared-order__items { margin: var(--space-1) 0 0; color: var(--text-muted); font: var(--text-small); }
+    .shared-order__status { display: inline-block; margin-top: var(--space-1); color: var(--success); font: var(--text-small); }
+    .shared-order__status--pending { color: var(--warning); }
+    .table-total-callout { display: flex; flex-direction: column; gap: var(--space-1); margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-2); background: var(--background); }
+    .table-total-callout .total-row { font-weight: 700; }
+    .checkout-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 365px); align-items: start; gap: var(--space-5); }
+    .checkout-main, .checkout-summary { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+    .checkout-card { padding: var(--space-5); }
+    .checkout-card h2 { margin: 0; font: var(--text-h4); }
+    .checkout-card__intro { margin: var(--space-2) 0 0; color: var(--text-muted); font: var(--text-caption); }
+    .review-lines { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-4); }
+    .review-line { display: flex; align-items: flex-start; gap: var(--space-3); padding-bottom: var(--space-3); border-bottom: var(--border-width) solid var(--border); }
+    .review-line:last-child { padding-bottom: 0; border-bottom: 0; }
+    .review-qty { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border: var(--border-width) solid var(--border); border-radius: var(--radius-2); color: var(--text-muted); font: var(--text-caption); font-weight: 700; }
+    .review-line__body { flex: 1; min-width: 0; }
+    .review-line__title { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+    .review-line__title strong { font-weight: 700; }
+    .review-line__meta { margin: var(--space-1) 0 0; color: var(--text-muted); font: var(--text-small); }
+    .review-line__note { margin: var(--space-2) 0 0; padding-left: var(--space-2); border-left: var(--border-width) solid var(--primary); color: var(--text-muted); font: var(--text-small); overflow-wrap: anywhere; }
+    .review-line__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-2); }
+    .form-field { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+    .form-field label, .field-label { color: var(--text); font: var(--text-caption); font-weight: 700; }
+    .form-field textarea, .form-field input, .form-field select { width: 100%; padding: var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-2); background: var(--background); color: var(--text); }
+    .form-field textarea { resize: vertical; min-height: 84px; }
+    .form-field textarea::placeholder, .form-field input::placeholder { color: var(--text-muted); }
+    .field-hint { margin: 0; color: var(--text-muted); font: var(--text-small); }
+    .field-counter { align-self: flex-end; color: var(--text-muted); font: var(--text-small); }
+    .field-error { color: var(--error); font: var(--text-caption); }
+    .note-section { display: flex; flex-direction: column; gap: var(--space-3); }
+    .allergy-check { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-2); cursor: pointer; }
+    .allergy-check input, .acknowledgement input { margin-top: 4px; accent-color: var(--primary); flex: none; width: 18px; height: 18px; }
+    .allergy-check strong { display: block; font-weight: 700; }
+    .allergy-check small { display: block; margin-top: var(--space-1); color: var(--text-muted); font: var(--text-small); }
+    .allergy-detail { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3); border: var(--border-width) solid var(--warning); border-radius: var(--radius-2); }
+    .allergy-warning { display: flex; gap: var(--space-2); color: var(--warning); font: var(--text-caption); }
+    .allergy-warning svg { flex: none; margin-top: 2px; }
+    .acknowledgement { display: flex; align-items: flex-start; gap: var(--space-2); color: var(--text-muted); font: var(--text-caption); }
+    .payment-options { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
+    .payment-option { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-2); cursor: pointer; }
+    .payment-option:has(input:checked) { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 7%, var(--surface)); }
+    .payment-option input { margin-top: 4px; accent-color: var(--primary); flex: none; }
+    .payment-option__content { flex: 1; }
+    .payment-option__content strong { display: block; font-weight: 700; }
+    .payment-option__content span { display: block; margin-top: var(--space-1); color: var(--text-muted); font: var(--text-small); }
+    .summary-totals { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-4); padding-top: var(--space-4); border-top: var(--border-width) solid var(--border); }
+    .summary-total { font: var(--text-h3); font-weight: 700; letter-spacing: -.02em; }
+    .secure-note { display: flex; align-items: flex-start; gap: var(--space-2); color: var(--text-muted); font: var(--text-small); }
+    .secure-note svg { flex: none; }
+    .confirmation { max-width: 760px; margin-inline: auto; }
+    .success-panel { padding: var(--space-7); text-align: center; }
+    .success-icon { display: grid; place-items: center; width: 72px; height: 72px; margin: 0 auto var(--space-4); border-radius: var(--radius-full); color: var(--success); border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 9%, var(--surface)); }
+    .success-panel h1 { margin: 0; font: var(--text-h1); letter-spacing: -.03em; }
+    .success-panel > p { max-width: 560px; margin: var(--space-3) auto 0; color: var(--text-muted); }
+    .order-reference { display: inline-flex; align-items: center; gap: var(--space-2); margin-top: var(--space-4); padding: var(--space-2) var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-full); font: var(--text-caption); }
+    .order-progress { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: var(--space-6) 0; text-align: left; }
+    .progress-step { padding: var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-2); color: var(--text-muted); font: var(--text-small); }
+    .progress-step strong { display: block; margin-top: var(--space-2); color: var(--text); font: var(--text-caption); }
+    .progress-step.is-active { border-color: var(--success); background: color-mix(in srgb, var(--success) 6%, var(--surface)); }
+    .success-summary { max-width: 520px; margin: 0 auto; padding: var(--space-4); border-radius: var(--radius-3); background: var(--background); text-align: left; }
+    .success-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+    .prototype-note { margin: var(--space-4) 0 0 !important; font: var(--text-small) !important; }
+    .site-footer { border-top: var(--border-width) solid var(--border); padding-block: var(--space-4); color: var(--text-muted); font: var(--text-small); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+    .footer-inner p { margin: 0; }
+    .toast { position: fixed; z-index: 50; right: var(--space-5); bottom: var(--space-5); max-width: min(420px, calc(100% - var(--space-5) - var(--space-5))); padding: var(--space-3) var(--space-4); border: var(--border-width) solid var(--primary); border-radius: var(--radius-2); background: var(--surface); color: var(--text); font: var(--text-caption); }
+    .dialog-backdrop { border: var(--border-width) solid var(--border); border-radius: var(--radius-4); padding: 0; width: min(520px, calc(100% - var(--space-5) - var(--space-5))); max-height: min(88vh, 760px); overflow: auto; background: var(--surface); color: var(--text); }
+    .dialog-backdrop::backdrop { background: rgb(0 0 0 / 72%); backdrop-filter: blur(3px); }
+    .dialog-inner { padding: var(--space-5); }
+    .dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .dialog-header h2 { margin: 0; font: var(--text-h4); }
+    .dialog-header p { margin: var(--space-1) 0 0; color: var(--text-muted); font: var(--text-caption); }
+    .icon-button { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border: var(--border-width) solid var(--border); border-radius: var(--radius-2); background: transparent; cursor: pointer; }
+    .icon-button:hover { border-color: var(--primary); color: var(--primary); }
+    .dialog-form { display: flex; flex-direction: column; gap: var(--space-4); }
+    .radio-set { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .radio-pill { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: var(--border-width) solid var(--border); border-radius: var(--radius-2); cursor: pointer; }
+    .radio-pill:has(input:checked) { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--background)); }
+    .radio-pill input { accent-color: var(--primary); }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); padding-top: var(--space-2); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    @media (max-width: 900px) {
+      .table-layout, .menu-layout, .checkout-grid { grid-template-columns: minmax(0, 1fr); }
+      .join-panel, .order-sidebar { position: static; }
+      .order-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+      .cart-panel, .shared-panel { padding: var(--space-4); }
+      .checkout-summary { order: -1; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: calc(100% - var(--space-4) - var(--space-4)); }
+      .header-inner { min-height: 68px; }
+      .brand-name span { display: none; }
+      .brand-mark { width: 36px; height: 36px; }
+      .header-actions .pdg-btn { display: none; }
+      .table-pill { padding: var(--space-2); font: var(--text-small); }
+      .stepper { margin-inline: calc(var(--space-4) * -1); padding-inline: var(--space-4); }
+      .page-main { padding-block: var(--space-5); }
+      .page-title, .menu-heading-row h1, .success-panel h1 { font: var(--text-h2); letter-spacing: -.03em; }
+      .section-intro { margin-bottom: var(--space-5); }
+      .floor-panel, .join-panel, .checkout-card, .success-panel { padding: var(--space-4); }
+      .table-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .table-tile { min-height: 84px; }
+      .map-window { flex-wrap: wrap; }
+      .menu-heading-row { display: block; }
+      .menu-heading-row > .pdg-btn { margin-top: var(--space-3); }
+      .menu-grid { grid-template-columns: minmax(0, 1fr); }
+      .menu-card { display: grid; grid-template-columns: 72px minmax(0, 1fr); column-gap: var(--space-3); padding: var(--space-3); }
+      .item-visual { grid-row: span 4; min-height: 72px; margin: 0; font: var(--text-h2); }
+      .item-card-content { min-width: 0; display: flex; flex-direction: column; }
+      .item-category { margin-bottom: var(--space-1); }
+      .item-name { font: var(--text-h4); }
+      .item-description { margin-top: var(--space-1); }
+      .tag-list { margin-bottom: var(--space-3); }
+      .menu-actions { grid-column: 2; justify-content: flex-start; }
+      .menu-actions .pdg-btn { min-height: 40px; }
+      .order-sidebar { grid-template-columns: minmax(0, 1fr); }
+      .cart-panel, .shared-panel { padding: var(--space-4); }
+      .order-progress { grid-template-columns: minmax(0, 1fr); }
+      .progress-step { display: flex; align-items: center; gap: var(--space-2); }
+      .progress-step strong { margin-top: 0; }
+      .success-actions { flex-direction: column; }
+      .success-actions .pdg-btn { width: 100%; }
+      .toast { right: var(--space-3); bottom: var(--space-3); }
+    }
+    .mobile-action-bar { display: none; }
+    .mobile-action-bar__inner { width: 100%; max-width: 560px; margin-inline: auto; display: flex; align-items: center; gap: var(--space-3); }
+    .mobile-action-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+    .mobile-action-copy span { color: var(--text-muted); font: var(--text-small); }
+    .mobile-action-copy strong { font: var(--text-h4); font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
+
+    @media (max-width: 620px) {
+      html, body { max-width: 100%; overflow-x: clip; }
+      .shell { width: calc(100% - 32px); }
+      .header-inner { gap: var(--space-2); }
+      .brand { gap: var(--space-2); }
+      .brand-name strong { font-size: 13px; }
+      .header-actions { gap: var(--space-2); }
+      .table-pill { max-width: 132px; overflow: hidden; }
+      .table-pill > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+      .stepper { gap: 4px; }
+      .step-tab { flex: 0 0 auto; padding: 7px 9px; font-size: 13px; }
+      .step-number { width: 22px; height: 22px; }
+      .page-main { padding-block: var(--space-5); }
+      .section-intro { margin-bottom: var(--space-4); }
+      .page-lede { font-size: 14px; line-height: 21px; }
+      .panel { border-radius: var(--radius-3); }
+      .floor-plan { padding: var(--space-3); }
+      .table-grid { gap: var(--space-2); }
+      .table-tile { min-height: 88px; }
+      .map-window { gap: var(--space-2); font-size: 10px; }
+      .window-line { min-width: 24px; }
+      .map-legend { gap: var(--space-3); }
+      .join-panel { gap: var(--space-3); }
+      .menu-heading-row { margin-bottom: var(--space-4); }
+      .menu-heading-row .page-lede { margin-top: var(--space-2); }
+      .category-list { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px var(--space-4); padding: 0 16px 6px; scroll-snap-type: x proximity; scrollbar-width: none; }
+      .category-list::-webkit-scrollbar { display: none; }
+      .category-chip { flex: 0 0 auto; min-height: 42px; scroll-snap-align: start; }
+      .menu-grid { gap: var(--space-3); }
+      .menu-card { grid-template-columns: 68px minmax(0, 1fr); column-gap: var(--space-3); align-items: start; padding: var(--space-3); }
+      .item-visual { grid-row: 1; align-self: start; width: 68px; height: 68px; min-height: 68px; margin: 0; font-size: 30px; }
+      .item-card-content { gap: 0; }
+      .item-topline { align-items: flex-start; gap: var(--space-2); }
+      .item-name { font-size: 17px; line-height: 22px; }
+      .item-price { font-size: 14px; }
+      .item-description { margin-block: var(--space-2); line-height: 19px; }
+      .tag-list { gap: 4px; margin-bottom: var(--space-3); }
+      .tag { font-size: 11px; line-height: 15px; }
+      .menu-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+      .menu-actions .pdg-btn { min-height: 44px; padding-inline: var(--space-3); }
+      .menu-actions .text-button { min-height: 44px; padding-inline: 2px; }
+      .order-sidebar { gap: var(--space-3); }
+      .cart-panel, .shared-panel { padding: var(--space-4); }
+      .cart-line__actions { flex-wrap: wrap; }
+      .checkout-grid { gap: var(--space-3); }
+      .checkout-summary { order: 0; }
+      .checkout-main, .checkout-summary { gap: var(--space-3); }
+      .checkout-card { padding: var(--space-4); }
+      .review-line { gap: var(--space-2); }
+      .review-line__title { gap: var(--space-2); }
+      .review-line__actions { gap: var(--space-3); }
+      .form-field textarea { font-size: 16px; }
+      .payment-option { padding: var(--space-3); }
+      .order-progress { margin-block: var(--space-4); }
+      .mobile-action-bar { position: fixed; z-index: 30; right: 0; bottom: 0; left: 0; display: block; padding: var(--space-3) 16px max(12px, env(safe-area-inset-bottom)); border-top: var(--border-width) solid var(--border); background: color-mix(in srgb, var(--background) 92%, transparent); backdrop-filter: blur(16px); }
+      .mobile-action-bar .pdg-btn { flex: 0 0 auto; max-width: 58%; min-height: 48px; padding-inline: var(--space-3); white-space: nowrap; }
+      body[data-step="menu"] .page-main, body[data-step="checkout"] .page-main { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+      .site-footer { padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom)); }
+      .footer-inner { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
+      .toast { right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); left: 12px; max-width: none; }
+      .dialog-backdrop { width: calc(100% - 24px); max-height: 86dvh; margin-block: auto; }
+      .dialog-inner { padding: var(--space-4); }
+    }
+    @media (max-width: 380px) {
+      .brand-name strong { max-width: 132px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .step-tab { gap: 5px; padding-inline: 7px; font-size: 12px; }
+      .mobile-action-bar .pdg-btn { font-size: 14px; }
+      .menu-card { grid-template-columns: 56px minmax(0, 1fr); gap: var(--space-2); }
+      .item-visual { width: 56px; height: 56px; min-height: 56px; }
+      .menu-actions .pdg-btn { flex: 1 1 auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body data-step="table">
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="Product Designer Gym Cafe home">
+        <span class="brand-mark" aria-hidden="true">pdg</span>
+        <span class="brand-name"><strong>Product Designer Gym</strong><span>Cafe · Order to your table</span></span>
+      </a>
+      <div class="header-actions">
+        <span class="table-pill" id="headerTablePill" hidden><span aria-hidden="true">⌁</span><span>Ordering at <strong id="headerTableName">—</strong></span></span>
+        <a class="pdg-btn pdg-btn--secondary body" href="./">Cafe home</a>
+      </div>
+    </div>
+    <nav class="shell stepper" aria-label="Ordering steps">
+      <button type="button" class="step-tab" id="stepTabTable" data-go-step="table" aria-current="step"><span class="step-number">1</span><span>Choose table</span></button>
+      <button type="button" class="step-tab" id="stepTabMenu" data-go-step="menu" disabled><span class="step-number">2</span><span>Choose food</span></button>
+      <button type="button" class="step-tab" id="stepTabCheckout" data-go-step="checkout" disabled><span class="step-number">3</span><span>Review order</span></button>
+    </nav>
+  </header>
+
+  <main class="shell page-main">
+    <section class="step-view" id="tableStep" aria-labelledby="tableHeading">
+      <div class="section-intro">
+        <p class="eyebrow">Made for the table you're already at</p>
+        <h1 class="page-title" id="tableHeading">Where are you sitting?</h1>
+        <p class="page-lede">Choose the number on your table card. We'll bring your order to you — no queue, no guessing.</p>
+      </div>
+      <div class="table-layout">
+        <section class="panel floor-panel" aria-labelledby="floorHeading">
+          <div class="panel-heading">
+            <div><h2 id="floorHeading">Cafe floor plan</h2><p class="caption muted" style="margin:var(--space-1) 0 0">Tap the table you're sitting at.</p></div>
+            <span class="pdg-badge pdg-badge--neutral small"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/></svg> Table map</span>
+          </div>
+          <div class="floor-plan">
+            <div class="map-window"><span>WINDOW SEATS</span><span class="window-line" aria-hidden="true"></span><span>LIGHT</span></div>
+            <div class="table-grid" role="group" aria-label="Select the table you are seated at">
+              <button type="button" class="table-tile" data-table-id="T01" aria-pressed="false" aria-label="Table 1, two seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">01</span><span class="table-tile__seats">2 seats</span></button>
+              <button type="button" class="table-tile" data-table-id="T02" aria-pressed="false" aria-label="Table 2, two seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">02</span><span class="table-tile__seats">2 seats</span></button>
+              <button type="button" class="table-tile" data-table-id="T03" aria-pressed="false" aria-label="Table 3, four seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">03</span><span class="table-tile__seats">4 seats</span></button>
+              <button type="button" class="table-tile" data-table-id="T04" aria-pressed="false" aria-label="Table 4, four seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">04</span><span class="table-tile__seats">4 seats</span></button>
+              <button type="button" class="table-tile" data-table-id="T12" aria-pressed="false" aria-label="Table 12, four seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">12</span><span class="table-tile__seats">4 seats</span></button>
+              <button type="button" class="table-tile" data-table-id="T13" aria-pressed="false" aria-label="Table 13, six seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">13</span><span class="table-tile__seats">6 seats</span></button>
+              <button type="button" class="table-tile" data-table-id="T14" aria-pressed="false" aria-label="Table 14, two seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">14</span><span class="table-tile__seats">2 seats</span></button>
+              <button type="button" class="table-tile" data-table-id="T15" aria-pressed="false" aria-label="Table 15, two seats"><span class="table-tile__shape" aria-hidden="true"></span><span class="table-tile__number">15</span><span class="table-tile__seats">2 seats</span></button>
+            </div>
+            <div class="map-zone">COUNTER & PICK-UP · STAFF AREA</div>
+            <div class="map-legend"><span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>Table</span><span class="legend-item"><span class="legend-dot legend-dot--selected" aria-hidden="true"></span>Selected table</span></div>
+          </div>
+        </section>
+        <aside class="panel join-panel" aria-labelledby="joinHeading">
+          <div class="join-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1 10H5L4 10Z"/><path d="M8 10a4 4 0 0 1 8 0"/><path d="M8 4h.01M12 2h.01M16 4h.01"/></svg></div>
+          <h2 id="joinHeading">Let's get you sorted.</h2>
+          <p id="selectedTableCopy">Select your table on the map to get started. You can still change it before placing an order.</p>
+          <div class="join-divider"></div>
+          <div class="qr-callout">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2M14 20h2M20 19v2M18 17h3"/></svg>
+            <div><strong>Scanned a table QR?</strong><p class="small" style="margin:var(--space-1) 0 0">Your table can be selected automatically when its QR opens this page.</p><button type="button" class="text-button" id="previewQr">Preview a Table 12 QR link ↗</button></div>
+          </div>
+          <p class="join-message" id="tableSelectError" role="status" aria-live="polite"></p>
+          <button type="button" class="pdg-btn pdg-btn--primary body full" id="continueToMenu" disabled>Continue to menu <span aria-hidden="true">→</span></button>
+          <p class="small muted">You can browse first. Your order isn't sent until you confirm it.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="step-view" id="menuStep" aria-labelledby="menuHeading" hidden>
+      <div class="menu-heading-row">
+        <div><p class="eyebrow">Good things, coming your way</p><h1 id="menuHeading">What sounds good?</h1><p class="page-lede">Choose your favourites and we'll bring them to your table.</p></div>
+        <button type="button" class="pdg-btn pdg-btn--secondary body" id="changeTableFromMenu"><span aria-hidden="true">⌁</span> <span id="changeTableLabel">Change table</span></button>
+      </div>
+      <div class="menu-layout">
+        <div class="menu-main">
+          <div class="category-list" id="categoryList" role="group" aria-label="Filter menu by category"></div>
+          <div class="menu-grid" id="menuGrid" aria-live="polite"></div>
+        </div>
+        <aside class="order-sidebar" aria-label="Your cart and table orders">
+          <section class="panel cart-panel" id="cartPanel" aria-labelledby="cartHeading"></section>
+          <section class="panel shared-panel" id="sharedPanel" aria-labelledby="sharedHeading"></section>
+        </aside>
+      </div>
+    </section>
+
+    <section class="step-view" id="checkoutStep" aria-labelledby="checkoutHeading" hidden>
+      <div class="section-intro">
+        <p class="eyebrow">One last look</p>
+        <h1 class="page-title" id="checkoutHeading">Review your order</h1>
+        <p class="page-lede">Check the items and leave any helpful details. The order goes to Table <span id="checkoutTableName">—</span> when you place it.</p>
+      </div>
+      <div class="checkout-grid">
+        <div class="checkout-main">
+          <section class="panel checkout-card" aria-labelledby="reviewItemsHeading">
+            <div class="panel-heading"><div><h2 id="reviewItemsHeading">Your items</h2><p class="checkout-card__intro">Only your unsubmitted items are listed here.</p></div><button type="button" class="text-button" id="backToMenu">Add more</button></div>
+            <div class="review-lines" id="checkoutItems"></div>
+          </section>
+          <section class="panel checkout-card note-section" aria-labelledby="orderNotesHeading">
+            <div><h2 id="orderNotesHeading">Anything else we should know?</h2><p class="checkout-card__intro">Optional. Add a note for the café, like bringing your items together.</p></div>
+            <div class="form-field"><label for="orderNote">Note for the whole order</label><textarea id="orderNote" maxlength="160" placeholder="e.g. Please bring the drinks and pastries together." aria-describedby="orderNoteHint orderNoteCount"></textarea><div style="display:flex;justify-content:space-between;gap:var(--space-3)"><p class="field-hint" id="orderNoteHint">Please keep the note short and specific.</p><span class="field-counter" id="orderNoteCount">0/160</span></div></div>
+          </section>
+          <section class="panel checkout-card note-section" aria-labelledby="allergyHeading">
+            <div><h2 id="allergyHeading">Allergies or dietary needs</h2><p class="checkout-card__intro">Menu allergen details are available on each item. Tell us here if the café needs to check something before preparing your order.</p></div>
+            <label class="allergy-check" for="hasAllergy"><input type="checkbox" id="hasAllergy"><span><strong>I need to tell the café about an allergy or dietary requirement</strong><small>Only check this if you need the team to follow up on a specific requirement.</small></span></label>
+            <div id="allergyDetails" class="allergy-detail" hidden>
+              <div class="allergy-warning"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5M12 17h.01"/></svg><span><strong>Please speak to a team member before ordering.</strong> A written note alone cannot guarantee that food is safe for your allergy.</span></div>
+              <div class="form-field"><label for="allergyNote">Which allergen or requirement applies?</label><textarea id="allergyNote" maxlength="160" placeholder="e.g. Peanut allergy — please confirm safe preparation." aria-describedby="allergyNoteHint"></textarea><p class="field-hint" id="allergyNoteHint">This is shared with the café team with your order.</p></div>
+              <label class="acknowledgement" for="allergyAcknowledgement"><input type="checkbox" id="allergyAcknowledgement"><span>I understand I need to confirm safe preparation with a café team member.</span></label>
+              <p class="field-error" id="allergyError" role="alert" hidden></p>
+            </div>
+          </section>
+        </div>
+        <aside class="checkout-summary">
+          <section class="panel checkout-card" aria-labelledby="billingHeading">
+            <h2 id="billingHeading">Who is paying?</h2>
+            <p class="checkout-card__intro">Everyone can order separately. Choose whose bill you'd like this order to go on.</p>
+            <div class="payment-options" role="radiogroup" aria-label="Choose who will pay">
+              <label class="payment-option"><input type="radio" name="paymentScope" value="mine" checked><span class="payment-option__content"><strong>Just my items</strong><span>Keep your bill separate from the table.</span></span></label>
+              <label class="payment-option"><input type="radio" name="paymentScope" value="table"><span class="payment-option__content"><strong>The whole table</strong><span>Include the other outstanding table orders.</span></span></label>
+            </div>
+            <div class="summary-totals" id="checkoutTotals"></div>
+            <p class="secure-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>This prototype doesn't take a payment. Your choice records how the bill should be handled.</span></p>
+            <p class="field-error" id="checkoutError" role="alert" hidden></p>
+            <button type="button" class="pdg-btn pdg-btn--primary body full" id="placeOrderButton">Place order</button>
+            <button type="button" class="pdg-btn pdg-btn--ghost body full" id="backToMenuSecondary">Return to menu</button>
+          </section>
+          <section class="panel checkout-card" aria-labelledby="tableBillHeading">
+            <h2 id="tableBillHeading">Already ordered here</h2>
+            <p class="checkout-card__intro">These items are from other guests. They stay on the table bill unless you choose to cover everyone.</p>
+            <div id="checkoutSharedOrders" class="shared-orders" style="margin-top:var(--space-4)"></div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <section class="step-view confirmation" id="confirmationStep" aria-labelledby="confirmationHeading" hidden>
+      <div class="panel success-panel">
+        <div class="success-icon" aria-hidden="true"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></div>
+        <p class="eyebrow">All sent to the café</p>
+        <h1 id="confirmationHeading">Order placed.</h1>
+        <p id="confirmationCopy">Your order has been added to the table's order list.</p>
+        <div class="order-reference"><span class="pdg-badge pdg-badge--success small"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg> Received</span><span id="orderReference">Order #PDG-1001</span><span>·</span><span id="confirmationTable">Table —</span></div>
+        <div class="order-progress" aria-label="Order progress">
+          <div class="progress-step is-active"><span aria-hidden="true">✓</span><strong>Order received</strong></div>
+          <div class="progress-step"><span aria-hidden="true">Ⅱ</span><strong>Preparing</strong></div>
+          <div class="progress-step"><span aria-hidden="true">⌂</span><strong>Coming to your table</strong></div>
+        </div>
+        <div class="success-summary" id="successSummary"></div>
+        <p class="prototype-note muted">Prototype preview: this confirmation is local to this browser. A live version would send the order to the café system and update these statuses.</p>
+        <div class="success-actions"><button type="button" class="pdg-btn pdg-btn--primary body" id="orderMoreButton">Order something else</button><a class="pdg-btn pdg-btn--secondary body" href="./">Back to cafe home</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="shell footer-inner"><p>© Product Designer Gym Cafe</p><p>Thoughtful ordering, right where you're sitting.</p></div></footer>
+
+  <div class="mobile-action-bar" id="mobileCartBar" hidden aria-label="Your cart summary">
+    <div class="mobile-action-bar__inner">
+      <div class="mobile-action-copy"><span id="mobileCartCount">Your order · 0 items</span><strong id="mobileCartTotal">$0.00</strong></div>
+      <button type="button" class="pdg-btn pdg-btn--primary body" id="mobileReviewOrder">Review order <span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+  <div class="mobile-action-bar" id="mobileCheckoutBar" hidden aria-label="Checkout action">
+    <div class="mobile-action-bar__inner">
+      <div class="mobile-action-copy"><span id="mobileCheckoutLabel">Order total</span><strong id="mobileCheckoutTotal">$0.00</strong></div>
+      <button type="button" class="pdg-btn pdg-btn--primary body" id="mobilePlaceOrderButton">Place order</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog class="dialog-backdrop" id="customizerDialog" aria-labelledby="customizerTitle"></dialog>
+
+  <script>
+    (() => {
+      'use strict';
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+      const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+      const formatMoney = value => money.format(value);
+      const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+      const tableIds = ['T01', 'T02', 'T03', 'T04', 'T12', 'T13', 'T14', 'T15'];
+      const tableSeats = { T01: 2, T02: 2, T03: 4, T04: 4, T12: 4, T13: 6, T14: 2, T15: 2 };
+      const categories = ['All', 'Coffee', 'Cold drinks', 'Food', 'Bakery'];
+      const menuItems = [
+        { id: 'flat-white', name: 'Flat White', category: 'Coffee', group: 'coffee', price: 4.50, desc: 'Double ristretto with silky microfoam.', emoji: '☕', tags: ['Contains milk'], allergens: 'Milk', drink: true, coffee: true },
+        { id: 'cappuccino', name: 'Cappuccino', category: 'Coffee', group: 'coffee', price: 4.50, desc: 'Espresso, steamed milk and a soft foam top.', emoji: '☕', tags: ['Contains milk'], allergens: 'Milk', drink: true, coffee: true },
+        { id: 'iced-latte', name: 'Iced Latte', category: 'Cold drinks', group: 'cold', price: 5.00, desc: 'Chilled espresso over ice and your milk of choice.', emoji: '🧋', tags: ['Contains milk by default'], allergens: 'Milk when made with dairy milk', drink: true, coffee: false },
+        { id: 'cold-brew', name: 'Cold Brew', category: 'Cold drinks', group: 'cold', price: 5.00, desc: 'Slow-steeped coffee, served chilled.', emoji: '🧊', tags: ['Dairy-free by default'], allergens: 'No listed major allergens in the standard recipe; ask staff to confirm', drink: true, coffee: false },
+        { id: 'protein-bowl', name: 'Protein Bowl', category: 'Food', group: 'food', price: 12.00, desc: 'Grains, egg, greens and tahini dressing.', emoji: '🥗', tags: ['Vegetarian'], allergens: 'Egg, sesame; check grains and cross-contact with staff', drink: false, coffee: false },
+        { id: 'avocado-toast', name: 'Avocado Toast', category: 'Food', group: 'food', price: 9.50, desc: 'Smashed avocado, herbs and toasted sourdough.', emoji: '🥑', tags: ['Vegetarian'], allergens: 'Wheat/gluten; check recipe and cross-contact with staff', drink: false, coffee: false },
+        { id: 'croissant', name: 'Butter Croissant', category: 'Bakery', group: 'bakery', price: 3.80, desc: 'Flaky, buttery and baked fresh each morning.', emoji: '🥐', tags: ['Contains milk', 'Contains wheat'], allergens: 'Wheat/gluten, milk; may contain egg', drink: false, coffee: false },
+        { id: 'banana-bread', name: 'Banana Bread', category: 'Bakery', group: 'bakery', price: 4.20, desc: 'A soft slice with ripe banana and warming spice.', emoji: '🍞', tags: ['Vegetarian'], allergens: 'Check recipe for wheat/gluten, egg and possible nuts with staff', drink: false, coffee: false }
+      ];
+      const seedOrders = {
+        T12: [
+          { id: 'seed-1', guest: 'Alex', initials: 'A', items: [{ name: 'Iced Latte', quantity: 1 }], total: 5.00, status: 'Preparing', scope: 'mine' },
+          { id: 'seed-2', guest: 'Maya', initials: 'M', items: [{ name: 'Protein Bowl', quantity: 1 }], total: 12.00, status: 'Order received', scope: 'mine' }
+        ]
+      };
+      const localOrders = {};
+      let activeTable = null;
+      let activeStep = 'table';
+      let activeCategory = 'All';
+      let cart = [];
+      let checkoutNote = '';
+      let allergyEnabled = false;
+      let allergyText = '';
+      let allergyAcknowledged = false;
+      let billingScope = 'mine';
+      let nextLineId = 1;
+      let nextOrderNumber = 1001;
+      let toastTimer;
+      let editingLineId = null;
+      let customizerItemId = null;
+
+      const stepViews = { table: $('#tableStep'), menu: $('#menuStep'), checkout: $('#checkoutStep'), confirmation: $('#confirmationStep') };
+      const stepButtons = { table: $('#stepTabTable'), menu: $('#stepTabMenu'), checkout: $('#stepTabCheckout') };
+
+      function getItem(itemId) { return menuItems.find(item => item.id === itemId); }
+      function getLine(lineId) { return cart.find(line => line.lineId === lineId); }
+      function tableName(id = activeTable) { return id ? id.replace('T', 'Table ') : 'your table'; }
+      function sharedOrders(table = activeTable) { return [...(seedOrders[table] || []), ...(localOrders[table] || [])]; }
+      function lineUnitPrice(line) {
+        const item = getItem(line.itemId);
+        if (!item) return 0;
+        let value = item.price;
+        if (item.drink && line.size === 'Large') value += 0.75;
+        if (item.drink && ['Oat milk', 'Almond milk'].includes(line.milk)) value += 0.50;
+        if (item.coffee && line.extraShot) value += 0.80;
+        return value;
+      }
+      function cartTotal() { return cart.reduce((sum, line) => sum + lineUnitPrice(line) * line.quantity, 0); }
+      function sharedTotal(table = activeTable) { return sharedOrders(table).reduce((sum, order) => sum + order.total, 0); }
+      function tableTotal() { return cartTotal() + sharedTotal(); }
+      function cartCount() { return cart.reduce((sum, line) => sum + line.quantity, 0); }
+      function updateMobileBars() {
+        const count = cartCount();
+        const cartBar = $('#mobileCartBar');
+        const checkoutBar = $('#mobileCheckoutBar');
+        if (!cartBar || !checkoutBar) return;
+        cartBar.hidden = !(activeStep === 'menu' && count > 0);
+        checkoutBar.hidden = !(activeStep === 'checkout' && count > 0);
+        $('#mobileCartCount').textContent = `Your order · ${count} ${count === 1 ? 'item' : 'items'}`;
+        $('#mobileCartTotal').textContent = formatMoney(cartTotal());
+        const checkoutAmount = billingScope === 'table' ? tableTotal() : cartTotal();
+        $('#mobileCheckoutLabel').textContent = billingScope === 'table' ? 'Whole table bill' : 'Your total';
+        $('#mobileCheckoutTotal').textContent = formatMoney(checkoutAmount);
+        $('#mobilePlaceOrderButton').textContent = $('#placeOrderButton').textContent || 'Place order';
+      }
+      function lineSignature(line) { return [line.itemId, line.size || '', line.milk || '', Boolean(line.extraShot), (line.note || '').trim()].join('|'); }
+      function showToast(message) {
+        const toast = $('#toast');
+        toast.textContent = message;
+        toast.hidden = false;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => { toast.hidden = true; }, 3200);
+      }
+      function selectTable(tableId) {
+        if (!tableIds.includes(tableId)) return;
+        activeTable = tableId;
+        $$('[data-table-id]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.tableId === tableId)));
+        $('#selectedTableCopy').textContent = `Table ${tableId.replace('T', '')} selected · ${tableSeats[tableId]} seats. Your cart will stay with you if you change tables before placing an order.`;
+        $('#continueToMenu').disabled = false;
+        $('#tableSelectError').textContent = '';
+        $('#headerTablePill').hidden = false;
+        $('#headerTableName').textContent = tableId.replace('T', '');
+      }
+      function goToStep(step) {
+        if (step === 'menu' && !activeTable) {
+          $('#tableSelectError').textContent = 'Choose the table you are sitting at to continue.';
+          return;
+        }
+        if (step === 'checkout' && cart.length === 0) {
+          showToast('Add at least one item before reviewing your order.');
+          return;
+        }
+        if (step === 'menu') { renderMenu(); renderCart(); renderSharedOrders(); }
+        if (step === 'checkout') { captureCheckoutFields(); renderCheckout(); }
+        activeStep = step;
+        Object.entries(stepViews).forEach(([key, element]) => { element.hidden = key !== step; });
+        Object.entries(stepButtons).forEach(([key, button]) => {
+          button.disabled = (key === 'menu' && !activeTable) || (key === 'checkout' && cart.length === 0);
+          button.removeAttribute('aria-current');
+          if (key === step) button.setAttribute('aria-current', 'step');
+        });
+        document.body.dataset.step = step;
+        updateMobileBars();
+        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      }
+      function renderCategories() {
+        $('#categoryList').innerHTML = categories.map(category => `<button type="button" class="category-chip" data-category="${escapeHTML(category)}" aria-pressed="${category === activeCategory}">${escapeHTML(category)}</button>`).join('');
+      }
+      function renderMenu() {
+        $('#menuHeading').textContent = `What sounds good?`;
+        $('#changeTableLabel').textContent = `Change · ${tableName()}`;
+        renderCategories();
+        const visibleItems = menuItems.filter(item => activeCategory === 'All' || item.category === activeCategory);
+        $('#menuGrid').innerHTML = visibleItems.map(item => `
+          <article class="menu-card">
+            <div class="item-visual" aria-hidden="true">${item.emoji}</div>
+            <div class="item-card-content">
+              <div class="item-category">${escapeHTML(item.category)}</div>
+              <div class="item-topline"><h2 class="item-name">${escapeHTML(item.name)}</h2><span class="item-price">${formatMoney(item.price)}</span></div>
+              <p class="item-description">${escapeHTML(item.desc)}</p>
+              <div class="tag-list">${item.tags.map(tag => `<span class="tag">${escapeHTML(tag)}</span>`).join('')}</div>
+              <div class="menu-actions"><button type="button" class="pdg-btn pdg-btn--primary body" data-action="quick-add" data-item-id="${item.id}">Add · ${formatMoney(item.price)}</button><button type="button" class="text-button" data-action="customize" data-item-id="${item.id}">Customise</button></div>
+            </div>
+          </article>`).join('');
+      }
+      function optionSummary(line) {
+        const item = getItem(line.itemId);
+        const parts = [];
+        if (item && item.drink) {
+          parts.push(line.size || 'Regular');
+          if (line.milk) parts.push(line.milk);
+          if (item.coffee && line.extraShot) parts.push('Extra shot');
+        }
+        return parts.join(' · ');
+      }
+      function renderCart() {
+        const count = cartCount();
+        const lineMarkup = cart.map(line => {
+          const item = getItem(line.itemId);
+          const meta = [optionSummary(line), line.note ? `Note: ${line.note}` : ''].filter(Boolean).join(' · ');
+          return `<div class="cart-line">
+            <div class="cart-line__top"><div><p class="cart-line__title">${escapeHTML(item.name)}</p><p class="cart-line__meta">${escapeHTML(meta || 'Standard')}</p></div><span class="cart-line__price">${formatMoney(lineUnitPrice(line) * line.quantity)}</span></div>
+            <div class="cart-line__actions"><div class="qty-control" aria-label="Quantity for ${escapeHTML(item.name)}"><button type="button" data-action="quantity" data-line-id="${line.lineId}" data-delta="-1" aria-label="Remove one ${escapeHTML(item.name)}">−</button><span>${line.quantity}</span><button type="button" data-action="quantity" data-line-id="${line.lineId}" data-delta="1" aria-label="Add one ${escapeHTML(item.name)}">+</button></div><button type="button" class="text-button small" data-action="edit-line" data-line-id="${line.lineId}">Edit</button><button type="button" class="text-button small" data-action="remove-line" data-line-id="${line.lineId}">Remove</button></div>
+          </div>`;
+        }).join('');
+        $('#cartPanel').innerHTML = `
+          <div class="panel-heading"><div><h2 id="cartHeading">Your order</h2><p class="caption muted" style="margin:var(--space-1) 0 0">Your items · ${count}</p></div><span class="pdg-badge ${count ? 'pdg-badge--success' : 'pdg-badge--neutral'} small">${count ? `${count} ${count === 1 ? 'item' : 'items'}` : 'Empty'}</span></div>
+          ${count ? `<div class="cart-lines">${lineMarkup}</div><div class="cart-total"><div class="total-row"><span class="muted">Your subtotal</span><strong>${formatMoney(cartTotal())}</strong></div><p class="cart-footnote">Only these unsubmitted items are in your cart.</p><button type="button" class="pdg-btn pdg-btn--primary body full" data-action="checkout">Review order · ${formatMoney(cartTotal())}</button></div>` : `<div class="cart-empty"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><strong>Your cart is waiting</strong><p>Add a coffee or a bite. You can review everything before the café receives it.</p></div>`}
+        `;
+        $('#stepTabCheckout').disabled = count === 0;
+        updateMobileBars();
+      }
+      function renderSharedOrders(targetSelector = '#sharedPanel') {
+        const target = $(targetSelector);
+        if (!target) return;
+        const orders = sharedOrders();
+        const total = sharedTotal();
+        const orderRows = orders.map(order => {
+          const itemText = order.items.map(item => `${item.quantity} × ${item.name}`).join(', ');
+          const statusClass = order.status === 'Preparing' ? '' : ' shared-order__status--pending';
+          return `<div class="shared-order"><span class="avatar" aria-hidden="true">${escapeHTML(order.initials || (order.guest || 'G').slice(0, 1))}</span><div class="shared-order__body"><div class="shared-order__top"><strong>${escapeHTML(order.guest)}</strong><strong>${formatMoney(order.total)}</strong></div><p class="shared-order__items">${escapeHTML(itemText)}</p><span class="shared-order__status${statusClass}">${escapeHTML(order.status)}</span></div></div>`;
+        }).join('');
+        if (targetSelector === '#sharedPanel') {
+          target.innerHTML = `<h2 id="sharedHeading">Already ordered here</h2><p class="shared-subtitle">Table ${escapeHTML(activeTable.replace('T', ''))} · Shared with everyone at your table</p>
+            <div class="shared-orders">${orderRows || `<div class="cart-empty"><strong>Nothing from other guests yet</strong><p>Others can place their own orders from the same table QR.</p></div>`}</div>
+            <div class="table-total-callout"><div class="total-row"><span>Table total so far</span><strong>${formatMoney(tableTotal())}</strong></div><span class="small muted">Includes your cart and orders already placed at this table.</span></div>`;
+        } else {
+          target.innerHTML = orderRows || `<p class="muted caption">No other guest orders have been placed at this table in this preview.</p>`;
+        }
+      }
+      function captureCheckoutFields() {
+        if ($('#orderNote')) checkoutNote = $('#orderNote').value;
+        if ($('#hasAllergy')) allergyEnabled = $('#hasAllergy').checked;
+        if ($('#allergyNote')) allergyText = $('#allergyNote').value;
+        if ($('#allergyAcknowledgement')) allergyAcknowledged = $('#allergyAcknowledgement').checked;
+        const selectedScope = $('input[name="paymentScope"]:checked');
+        if (selectedScope) billingScope = selectedScope.value;
+      }
+      function renderCheckout() {
+        $('#checkoutTableName').textContent = activeTable ? activeTable.replace('T', '') : '—';
+        $('#checkoutItems').innerHTML = cart.map(line => {
+          const item = getItem(line.itemId);
+          const meta = optionSummary(line) || 'Standard';
+          return `<div class="review-line"><span class="review-qty">${line.quantity}×</span><div class="review-line__body"><div class="review-line__title"><strong>${escapeHTML(item.name)}</strong><strong>${formatMoney(lineUnitPrice(line) * line.quantity)}</strong></div><p class="review-line__meta">${escapeHTML(meta)}</p>${line.note ? `<p class="review-line__note">Item note: ${escapeHTML(line.note)}</p>` : ''}<div class="review-line__actions"><button type="button" class="text-button small" data-action="edit-line" data-line-id="${line.lineId}">Edit item / note</button><button type="button" class="text-button small" data-action="remove-line" data-line-id="${line.lineId}">Remove</button></div></div></div>`;
+        }).join('');
+        $('#orderNote').value = checkoutNote;
+        $('#orderNoteCount').textContent = `${checkoutNote.length}/160`;
+        $('#hasAllergy').checked = allergyEnabled;
+        $('#allergyDetails').hidden = !allergyEnabled;
+        $('#allergyNote').value = allergyText;
+        $('#allergyAcknowledgement').checked = allergyAcknowledged;
+        $$('#checkoutStep input[name="paymentScope"]').forEach(input => { input.checked = input.value === billingScope; });
+        $('#checkoutError').hidden = true;
+        $('#allergyError').hidden = true;
+        updateCheckoutTotals();
+        renderSharedOrders('#checkoutSharedOrders');
+      }
+      function updateCheckoutTotals() {
+        const ownTotal = cartTotal();
+        const fullTotal = tableTotal();
+        const amount = billingScope === 'table' ? fullTotal : ownTotal;
+        $('#checkoutTotals').innerHTML = `
+          <div class="total-row"><span class="muted">Your items</span><strong>${formatMoney(ownTotal)}</strong></div>
+          ${billingScope === 'table' ? `<div class="total-row"><span class="muted">Other table orders</span><strong>${formatMoney(sharedTotal())}</strong></div>` : ''}
+          <div class="total-row"><span>${billingScope === 'table' ? 'Whole table bill' : 'Your total'}</span><strong class="summary-total">${formatMoney(amount)}</strong></div>
+          <p class="cart-footnote">${billingScope === 'table' ? 'Covers the orders already shown above, plus your items.' : 'Other guests’ orders stay separate.'}</p>`;
+        $('#placeOrderButton').textContent = `Place order · ${formatMoney(amount)}`;
+        updateMobileBars();
+      }
+      function addLine(line) {
+        const signature = lineSignature(line);
+        const existing = cart.find(item => lineSignature(item) === signature);
+        if (existing) existing.quantity += line.quantity || 1;
+        else cart.push({ ...line, lineId: nextLineId++, quantity: line.quantity || 1 });
+        renderCart();
+        updateCheckoutStepAvailability();
+      }
+      function updateCheckoutStepAvailability() {
+        const button = $('#stepTabCheckout');
+        button.disabled = cart.length === 0;
+        if (activeStep === 'menu') renderCart();
+      }
+      function addQuickItem(itemId) {
+        const item = getItem(itemId);
+        if (!item) return;
+        addLine({ itemId, quantity: 1, size: item.drink ? 'Regular' : '', milk: item.drink ? 'Whole milk' : '', extraShot: false, note: '' });
+        showToast(`${item.name} added to your order.`);
+      }
+      function openCustomizer(itemId, lineId = null) {
+        const item = getItem(itemId);
+        if (!item) return;
+        const existing = lineId ? getLine(Number(lineId)) : null;
+        customizerItemId = itemId;
+        editingLineId = existing ? existing.lineId : null;
+        const current = existing || { size: 'Regular', milk: 'Whole milk', extraShot: false, note: '' };
+        const drinkOptions = item.drink ? `
+          <div class="form-field"><span class="field-label">Size</span><div class="radio-set" role="radiogroup" aria-label="Drink size"><label class="radio-pill"><input type="radio" name="drinkSize" value="Regular" ${current.size !== 'Large' ? 'checked' : ''}>Regular</label><label class="radio-pill"><input type="radio" name="drinkSize" value="Large" ${current.size === 'Large' ? 'checked' : ''}>Large <span class="muted">+${formatMoney(.75)}</span></label></div></div>
+          <div class="form-field"><label for="drinkMilk">Milk</label><select id="drinkMilk" class="pdg-input"><option ${current.milk === 'Whole milk' ? 'selected' : ''}>Whole milk</option><option ${current.milk === 'Semi-skimmed milk' ? 'selected' : ''}>Semi-skimmed milk</option><option ${current.milk === 'Oat milk' ? 'selected' : ''}>Oat milk (+${formatMoney(.50)})</option><option ${current.milk === 'Almond milk' ? 'selected' : ''}>Almond milk (+${formatMoney(.50)})</option><option ${current.milk === 'No milk' ? 'selected' : ''}>No milk</option></select><p class="field-hint">Milk alternatives may cost a little extra. Please check ingredient details with the team if needed.</p></div>
+          ${item.coffee ? `<label class="acknowledgement" for="extraShot"><input type="checkbox" id="extraShot" ${current.extraShot ? 'checked' : ''}><span>Extra espresso shot <strong>+${formatMoney(.80)}</strong></span></label>` : ''}` : '';
+        $('#customizerDialog').innerHTML = `<div class="dialog-inner"><div class="dialog-header"><div><h2 id="customizerTitle">${existing ? 'Edit your' : 'Customise your'} ${escapeHTML(item.name)}</h2><p>${escapeHTML(item.desc)}</p></div><button type="button" class="icon-button" data-action="close-dialog" aria-label="Close customisation">✕</button></div><form id="customizerForm" class="dialog-form"><p class="field-hint">Menu allergen information: ${escapeHTML(item.allergens)}.</p>${drinkOptions}<div class="form-field"><label for="itemNote">Note for this item <span class="muted">(optional)</span></label><textarea id="itemNote" maxlength="100" placeholder="e.g. No syrup, please." rows="2">${escapeHTML(current.note || '')}</textarea><p class="field-hint">For allergies, use the dedicated allergy section at checkout and speak to staff.</p></div><div class="dialog-actions"><button type="button" class="pdg-btn pdg-btn--secondary body" data-action="close-dialog">Cancel</button><button type="submit" class="pdg-btn pdg-btn--primary body">${existing ? 'Save changes' : `Add to order · ${formatMoney(item.price)}`}</button></div></form></div>`;
+        const dialog = $('#customizerDialog');
+        if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
+        $('#itemNote', dialog).focus({ preventScroll: true });
+      }
+      function closeCustomizer() {
+        const dialog = $('#customizerDialog');
+        if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+        else dialog.removeAttribute('open');
+        editingLineId = null;
+        customizerItemId = null;
+      }
+      function submitCustomizer(event) {
+        event.preventDefault();
+        const item = getItem(customizerItemId);
+        if (!item) return;
+        const selectedSize = $('input[name="drinkSize"]:checked', $('#customizerDialog'));
+        const selectedMilk = $('#drinkMilk', $('#customizerDialog'));
+        const line = {
+          itemId: item.id,
+          quantity: 1,
+          size: item.drink ? (selectedSize ? selectedSize.value : 'Regular') : '',
+          milk: item.drink && selectedMilk ? selectedMilk.value.replace(/ \(\+.*\)$/, '') : '',
+          extraShot: Boolean($('#extraShot', $('#customizerDialog'))?.checked),
+          note: $('#itemNote', $('#customizerDialog')).value.trim()
+        };
+        if (editingLineId) {
+          const prior = getLine(editingLineId);
+          if (prior) {
+            const updated = { ...line, lineId: prior.lineId, quantity: prior.quantity };
+            cart = cart.map(entry => entry.lineId === prior.lineId ? updated : entry);
+          }
+          closeCustomizer();
+          renderCart();
+          if (activeStep === 'checkout') renderCheckout();
+          showToast('Your item details have been updated.');
+        } else {
+          closeCustomizer();
+          addLine(line);
+          renderCart();
+          showToast(`${item.name} added to your order.`);
+        }
+        if (activeStep === 'checkout') renderCheckout();
+      }
+      function changeQuantity(lineId, delta) {
+        const line = getLine(Number(lineId));
+        if (!line) return;
+        line.quantity += delta;
+        if (line.quantity <= 0) cart = cart.filter(entry => entry.lineId !== line.lineId);
+        renderCart();
+        if (activeStep === 'checkout') renderCheckout();
+        updateCheckoutStepAvailability();
+      }
+      function removeLine(lineId) {
+        cart = cart.filter(entry => entry.lineId !== Number(lineId));
+        renderCart();
+        if (activeStep === 'checkout') {
+          if (cart.length) renderCheckout();
+          else goToStep('menu');
+        }
+        updateCheckoutStepAvailability();
+        showToast('Item removed from your order.');
+      }
+      function checkoutAction() {
+        captureCheckoutFields();
+        $('#checkoutError').hidden = true;
+        $('#allergyError').hidden = true;
+        if (!cart.length) { showToast('Add at least one item before reviewing your order.'); goToStep('menu'); return; }
+        if (allergyEnabled && (!allergyText.trim() || !allergyAcknowledged)) {
+          $('#allergyDetails').hidden = false;
+          const error = $('#allergyError');
+          error.textContent = !allergyText.trim() ? 'Please tell us which allergy or requirement applies.' : 'Please confirm that you will speak to a team member before ordering.';
+          error.hidden = false;
+          if (!allergyText.trim()) $('#allergyNote').focus(); else $('#allergyAcknowledgement').focus();
+          return;
+        }
+        const currentOrders = sharedOrders();
+        const amount = billingScope === 'table' ? tableTotal() : cartTotal();
+        const itemsSnapshot = cart.map(line => {
+          const item = getItem(line.itemId);
+          return { ...line, name: item.name, unitPrice: lineUnitPrice(line), total: lineUnitPrice(line) * line.quantity };
+        });
+        const orderNumber = `PDG-${nextOrderNumber++}`;
+        const orderForHistory = { id: orderNumber, guest: 'You', initials: 'Y', items: itemsSnapshot.map(line => ({ name: line.name, quantity: line.quantity })), total: cartTotal(), status: 'Order received', scope: billingScope };
+        if (!localOrders[activeTable]) localOrders[activeTable] = [];
+        localOrders[activeTable].push(orderForHistory);
+        const orderData = { orderNumber, table: activeTable, items: itemsSnapshot, ownTotal: cartTotal(), billTotal: amount, scope: billingScope, note: checkoutNote.trim(), allergy: allergyEnabled ? allergyText.trim() : '', placedAt: new Date() };
+        renderConfirmation(orderData, currentOrders);
+        cart = [];
+        checkoutNote = '';
+        allergyEnabled = false;
+        allergyText = '';
+        allergyAcknowledged = false;
+        billingScope = 'mine';
+        renderCart();
+        goToStep('confirmation');
+      }
+      function renderConfirmation(order, previousOrders) {
+        $('#confirmationCopy').textContent = `We've added ${order.items.reduce((sum, line) => sum + line.quantity, 0)} ${order.items.reduce((sum, line) => sum + line.quantity, 0) === 1 ? 'item' : 'items'} to the order for ${tableName(order.table)}. An estimated time would appear once the café accepts the order.`;
+        $('#orderReference').textContent = `Order #${order.orderNumber}`;
+        $('#confirmationTable').textContent = tableName(order.table);
+        const payer = order.scope === 'table' ? 'Whole table bill' : 'Your items only';
+        $('#successSummary').innerHTML = `<div class="total-row"><span class="muted">${escapeHTML(payer)}</span><strong>${formatMoney(order.billTotal)}</strong></div><div class="join-divider" style="margin-block:var(--space-3)"></div>${order.items.map(line => `<div class="total-row" style="margin-top:var(--space-2)"><span>${line.quantity} × ${escapeHTML(line.name)}</span><strong>${formatMoney(line.total)}</strong></div>`).join('')}${order.note ? `<p class="field-hint" style="margin-top:var(--space-3)"><strong>Order note:</strong> ${escapeHTML(order.note)}</p>` : ''}${order.allergy ? `<p class="field-hint" style="margin-top:var(--space-3)"><strong>Allergy / dietary follow-up:</strong> ${escapeHTML(order.allergy)}</p>` : ''}<p class="field-hint" style="margin-top:var(--space-3)">Payment hasn't been taken. This prototype saves your bill preference only.</p>`;
+      }
+      function init() {
+        $$('[data-table-id]').forEach(button => button.addEventListener('click', () => selectTable(button.dataset.tableId)));
+        $('#continueToMenu').addEventListener('click', () => goToStep('menu'));
+        $('#previewQr').addEventListener('click', () => { window.location.href = `${window.location.pathname}?table=T12`; });
+        $('#changeTableFromMenu').addEventListener('click', () => goToStep('table'));
+        $('#backToMenu').addEventListener('click', () => goToStep('menu'));
+        $('#backToMenuSecondary').addEventListener('click', () => goToStep('menu'));
+        $('#stepTabTable').addEventListener('click', () => goToStep('table'));
+        $('#stepTabMenu').addEventListener('click', () => goToStep('menu'));
+        $('#stepTabCheckout').addEventListener('click', () => goToStep('checkout'));
+        $('#orderNote').addEventListener('input', event => { checkoutNote = event.target.value; $('#orderNoteCount').textContent = `${checkoutNote.length}/160`; });
+        $('#hasAllergy').addEventListener('change', event => { allergyEnabled = event.target.checked; $('#allergyDetails').hidden = !allergyEnabled; if (!allergyEnabled) { allergyText = ''; allergyAcknowledged = false; $('#allergyNote').value = ''; $('#allergyAcknowledgement').checked = false; $('#allergyError').hidden = true; } });
+        $('#allergyNote').addEventListener('input', event => { allergyText = event.target.value; $('#allergyError').hidden = true; });
+        $('#allergyAcknowledgement').addEventListener('change', event => { allergyAcknowledged = event.target.checked; $('#allergyError').hidden = true; });
+        $$('input[name="paymentScope"]').forEach(input => input.addEventListener('change', event => { billingScope = event.target.value; updateCheckoutTotals(); }));
+        $('#placeOrderButton').addEventListener('click', checkoutAction);
+        $('#mobileReviewOrder').addEventListener('click', () => goToStep('checkout'));
+        $('#mobilePlaceOrderButton').addEventListener('click', () => $('#placeOrderButton').click());
+        window.addEventListener('resize', updateMobileBars, { passive: true });
+        $('#orderMoreButton').addEventListener('click', () => { activeCategory = 'All'; goToStep('menu'); });
+        $('#categoryList').addEventListener('click', event => {
+          const button = event.target.closest('[data-category]');
+          if (!button) return;
+          activeCategory = button.dataset.category;
+          renderMenu();
+        });
+        $('#menuGrid').addEventListener('click', event => {
+          const button = event.target.closest('[data-action]');
+          if (!button) return;
+          if (button.dataset.action === 'quick-add') addQuickItem(button.dataset.itemId);
+          if (button.dataset.action === 'customize') openCustomizer(button.dataset.itemId);
+        });
+        $('#cartPanel').addEventListener('click', event => handleLineAction(event, '#cartPanel'));
+        $('#checkoutItems').addEventListener('click', event => handleLineAction(event, '#checkoutItems'));
+        $('#customizerDialog').addEventListener('click', event => { if (event.target === $('#customizerDialog')) closeCustomizer(); const button = event.target.closest('[data-action="close-dialog"]'); if (button) closeCustomizer(); });
+        $('#customizerDialog').addEventListener('submit', event => { if (event.target.id === 'customizerForm') submitCustomizer(event); });
+        const queryTable = new URLSearchParams(window.location.search).get('table');
+        if (queryTable) {
+          const normalized = queryTable.trim().toUpperCase().startsWith('T') ? queryTable.trim().toUpperCase() : `T${queryTable.trim()}`;
+          if (tableIds.includes(normalized)) {
+            selectTable(normalized);
+            goToStep('menu');
+            showToast(`Table ${normalized.replace('T', '')} confirmed from your QR link.`);
+          } else {
+            $('#tableSelectError').textContent = 'That table link looks invalid. Select the number on your table card instead.';
+          }
+        }
+        renderCategories();
+        renderCart();
+      }
+      function handleLineAction(event, rootSelector) {
+        const button = event.target.closest('[data-action]');
+        if (!button) return;
+        const action = button.dataset.action;
+        const lineId = button.dataset.lineId;
+        if (action === 'quantity') changeQuantity(lineId, Number(button.dataset.delta));
+        if (action === 'edit-line') { const line = getLine(Number(lineId)); if (line) openCustomizer(line.itemId, line.lineId); }
+        if (action === 'remove-line') removeLine(lineId);
+        if (action === 'checkout') { checkoutNote = $('#orderNote')?.value || checkoutNote; goToStep('checkout'); }
+      }
+      init();
+    })();
+  </script>
+</body>
+</html>
