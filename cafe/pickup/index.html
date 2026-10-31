@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Order for pickup · Product Designer Gym Cafe</title>
+  <meta name="description" content="Your coffee break, ready when you are. Explore the café pickup-order prototype.">
+  <link rel="stylesheet" href="../../design-system/tokens.css">
+  <link rel="stylesheet" href="../../design-system/components/bundle.css">
+  <link rel="stylesheet" href="pickup.css?v=2">
+  <script src="pickup.js?v=2" defer></script>
+  <link rel="stylesheet" href="../embedded.css">
+  <script src="../embedded.js"></script>
+</head>
+<body class="body">
+  <a class="skip" href="#main">Skip to menu</a>
+  <div class="prototype small">INTERACTIVE PROTOTYPE <span>Sample menu & availability · no real orders or payments</span></div>
+  <nav class="nav wrap" aria-label="Main navigation">
+    <a class="brand h4" href="../">Product Designer Gym <span>Cafe</span></a>
+    <div class="nav-links caption"><a href="../#menu">Menu</a><a href="../#visit">Visit</a><a href="../order/">Order to table</a><a class="active" href="./" aria-current="page">Order for pickup <span aria-hidden="true">↗</span></a></div>
+  </nav>
+  <main id="main" class="wrap">
+    <header class="hero">
+      <div><p class="eyebrow small">A LITTLE FUEL. A HEAD START.</p><h1 class="h1">Your next break,<br>ready when you are.</h1><p class="muted hero-copy">Good coffee. Honest food. Order ahead and pick up at the café counter.</p><div class="hero-meta caption"><span id="status-badge" class="pdg-badge pdg-badge--success small">● Taking pickup orders</span><span>Made fresh for your arrival</span></div></div>
+      <div class="hero-image"><img src="../uploads/Cafe.png" alt="The glowing Product Designer Gym Cafe neon sign"><span class="image-label small">FUEL UP. THEN SHIP SOMETHING GOOD.</span></div>
+    </header>
+    <div class="order-layout">
+      <section aria-label="Choose your order">
+        <div class="pickup-strip"><span class="outline-icon" aria-hidden="true">◷</span><div><strong class="caption">Pickup at the café counter</strong><p id="pickup-summary" class="muted caption">As soon as possible · 10–15 min</p></div><button id="change-time" class="pdg-btn pdg-btn--ghost caption">Change time</button></div>
+        <div id="notice" class="notice caption" hidden></div>
+        <div class="section-title"><div><p class="eyebrow small">FRESH FROM THE COUNTER</p><h2 class="h2">What’s your fuel?</h2></div><span class="muted caption">4 café favourites</span></div>
+        <div class="tabs" role="group" aria-label="Filter menu"><button class="tab caption selected" data-filter="all" aria-pressed="true">All items <span>4</span></button><button class="tab caption" data-filter="drinks" aria-pressed="false">Coffee & drinks</button><button class="tab caption" data-filter="food" aria-pressed="false">Food & bakes</button></div>
+        <div id="menu" class="menu-grid"></div>
+        <div class="allergy caption"><span aria-hidden="true">ⓘ</span><p><strong>Allergies or dietary needs?</strong><br><span class="muted">Speak to the café team before ordering. We can’t guarantee an allergen-free preparation area.</span></p></div>
+        <div class="how-it-works"><h3 class="h4">A smoother coffee run.</h3><div class="steps caption"><p><span>01</span>Make it yours</p><p><span>02</span>Choose your time</p><p><span>03</span>Grab it & go</p></div></div>
+      </section>
+      <aside id="bag" class="bag" aria-label="Your bag"></aside>
+    </div>
+    <details class="scenario"><summary class="caption">Explore prototype scenarios</summary><p class="caption muted">Sample café time: Monday, 10:20. Use these states to review the ordering experience.</p><div class="scenario-buttons"><button class="pdg-btn pdg-btn--secondary small" data-scenario="normal">Open as usual</button><button class="pdg-btn pdg-btn--secondary small" data-scenario="busy">Busy café</button><button class="pdg-btn pdg-btn--secondary small" data-scenario="soldout">Pastry sold out</button><button class="pdg-btn pdg-btn--secondary small" data-scenario="closed">Closed today</button></div><p id="scenario-status" class="small muted" aria-live="polite">Current scenario: open as usual.</p></details>
+  </main>
+  <footer class="wrap footer caption"><span>Product Designer Gym Cafe</span><a href="../../design-system/">Built with our design system ↗</a><span>Coffee for the design practice.</span></footer>
+  <a id="mobile-bag" class="mobile-bag pdg-btn pdg-btn--primary caption" href="#bag" hidden></a>
+  <dialog id="modal" aria-labelledby="modal-title"><div id="modal-content"></div></dialog>
+  <div id="toast" class="toast caption" role="status"></div>
+</body>
+</html>

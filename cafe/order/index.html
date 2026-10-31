@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corgi Cafe · Order to your spot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../design-system/tokens.css">
+<link rel="stylesheet" href="../../design-system/components/bundle.css">
+<style>
+  /* Light re-theme of the design-system tokens, from the "Café Experience" UI inspiration.
+     Same token names, so the pdg- components pick it up. */
+  :root{
+    --background:#F4F4F4;
+    --surface:#FFFFFF;
+    --surface-sunk:#EBEBEB;
+    --text:#161616;
+    --text-muted:#666666;
+    --border:#E3E3E3;
+    --primary:#161616;
+    --primary-hover:#3A3A3A;
+    --on-primary:#FFFFFF;
+    --accent:#B9F17C;
+    --on-accent:#1E3A06;
+    --success:#2F7D32;
+    --warning:#8A5300;
+    --error:#C62828;
+    --radius-6:32px;
+    --tint-coffee:#FFF3BF;
+    --tint-cold:#DCEAFB;
+    --tint-food:#E2F5D1;
+    --tint-bakes:#FDDFE5;
+    --side-w:400px;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  body{margin:0;background:var(--background);color:var(--text);font:var(--text-body)}
+  a{color:var(--text)}
+  h1,h2,h3,p{margin:0}
+  button{font-family:inherit}
+  :focus-visible{outline:var(--focus-ring-width) solid var(--primary);outline-offset:2px}
+  .muted{color:var(--text-muted)}
+  .pdg-btn{border-radius:var(--radius-full)}
+  .pdg-btn--secondary{border-color:var(--border);background:var(--surface)}
+  .pdg-btn--secondary:hover{border-color:var(--text);color:var(--text)}
+  .pdg-btn--ghost{color:var(--text);text-decoration:underline;text-underline-offset:3px}
+  .pdg-btn--ghost:hover{color:var(--text-muted)}
+  .pdg-btn:disabled{background:var(--surface-sunk);border-color:transparent}
+  .pdg-input{border-radius:var(--radius-3)}
+
+  .wrap{max-width:1360px;margin:0 auto;padding:var(--space-6) var(--space-5) var(--space-7);display:flex;flex-direction:column;gap:var(--space-6)}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-4);flex-wrap:wrap}
+  .top__title{display:flex;flex-direction:column;gap:var(--space-3)}
+  .back{color:var(--text-muted);text-decoration:none}
+  .back:hover{color:var(--text)}
+  .display{font-family:var(--font-sans);font-weight:500;font-size:clamp(48px,7.4vw,92px);line-height:1;letter-spacing:-0.045em}
+  .pill{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);border-radius:var(--radius-3);background:var(--surface);color:var(--text-muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .pill--on{background:var(--accent);color:var(--on-accent);text-transform:none;letter-spacing:0}
+  .pill svg{width:14px;height:14px}
+  .label{color:var(--text-muted);font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:var(--space-4)}
+
+  .card{background:var(--surface);border-radius:var(--radius-6);padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-5)}
+
+  /* Page layout: content on the left, order summary collects in a sticky sidebar on the right */
+  .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-6);align-items:start}
+  .content{display:flex;flex-direction:column;gap:var(--space-7);min-width:0}
+  @media (min-width:1100px){
+    .layout{grid-template-columns:minmax(0,1fr) var(--side-w)}
+    .side{position:sticky;top:var(--space-5)}
+    .side .card{max-height:calc(100vh - 140px);overflow:auto}
+  }
+
+  /* Banners */
+  #banners{display:flex;flex-direction:column;gap:var(--space-3)}
+  #banners:empty{display:none}
+  .banner{display:flex;gap:var(--space-3);align-items:flex-start;padding:var(--space-3) var(--space-4);background:var(--surface);border-radius:var(--radius-3);border:var(--border-width) solid currentColor}
+  .banner svg{width:16px;height:16px;flex:none;margin-top:2px}
+  .banner p{color:var(--text)}
+  .banner--warning{color:var(--warning)}
+  .banner--error{color:var(--error)}
+  .banner--info{color:var(--text-muted)}
+
+  /* Spot map */
+  .loc{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-5)}
+  @media (min-width:800px){.loc{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start}}
+  .loc__info{display:flex;flex-direction:column;gap:var(--space-5)}
+  .well{background:var(--surface-sunk);border-radius:var(--radius-5);padding:var(--space-4)}
+  .map{position:relative;width:100%;aspect-ratio:4/3;border-radius:var(--radius-3);cursor:crosshair;touch-action:manipulation;
+    background-image:linear-gradient(to right,rgba(0,0,0,.06) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,.06) 1px,transparent 1px);
+    background-size:calc(100% / 24) calc(100% / 18)}
+  .map:focus-visible{outline-offset:4px}
+  .map.is-locked{cursor:default}
+  .f{position:absolute;background:var(--surface);border-radius:var(--radius-3);pointer-events:none}
+  .f--round{border-radius:var(--radius-full)}
+  .f--zone{background:transparent;border:var(--border-width) dashed #BDBDBD;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--text-muted);padding:var(--space-1)}
+  .map__wall{position:absolute;left:0;right:0;border-top:2px solid #BDBDBD;pointer-events:none}
+  .map__tag{position:absolute;color:var(--text-muted);pointer-events:none}
+  .sq{position:absolute;background:var(--accent);border-radius:var(--radius-1);pointer-events:none;outline:2px solid var(--on-accent)}
+  .sq--bad{background:#F6D3D3;outline-color:var(--error)}
+  .who{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;font-weight:700;pointer-events:none;border:2px solid var(--surface)}
+  .who--sam{background:#8C7BE0;color:#fff}
+  .spot{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);flex-wrap:wrap}
+  .words{font-family:var(--font-sans);font-weight:600;font-size:24px;line-height:32px;letter-spacing:-0.01em;word-break:break-word}
+  .words span{color:var(--text-muted);font-weight:500}
+  .spotform{display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap}
+  .spotform .pdg-field{min-width:200px}
+  .host{display:flex;align-items:center;gap:var(--space-4);justify-content:space-between;flex-wrap:wrap}
+  .host__who{display:flex;align-items:center;gap:var(--space-4)}
+  .avatar{width:56px;height:56px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;flex:none;font-weight:700}
+  .avatar--host{background:linear-gradient(135deg,#B9A7F5,#6F8BE8);color:#fff}
+  .choices{display:flex;flex-direction:column;gap:var(--space-2);border:0;margin:0;padding:0}
+  .choices legend{padding:0;margin-bottom:var(--space-2);font-weight:600}
+  .choice{display:flex;gap:var(--space-3);align-items:flex-start;padding:var(--space-3) var(--space-4);border-radius:var(--radius-3);background:var(--background);cursor:pointer;border:var(--border-width) solid transparent}
+  .choice:has(input:checked){border-color:var(--text);background:var(--surface)}
+  .choice input{margin:4px 0 0;accent-color:var(--text)}
+  .choice span{display:flex;flex-direction:column}
+
+  /* Menu */
+  .chips{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-4)}
+  .chip{border:0;background:var(--surface);color:var(--text);padding:var(--space-2) var(--space-4);border-radius:var(--radius-full);font-weight:600;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+  .menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:var(--space-4)}
+  .dish{position:relative;border-radius:var(--radius-6);padding:var(--space-5);min-height:300px;display:flex;flex-direction:column;justify-content:space-between;gap:var(--space-5);background:linear-gradient(180deg,var(--surface) 30%,var(--tint) 100%)}
+  .dish__quote{font-size:20px;line-height:28px;font-weight:500;letter-spacing:-0.01em}
+  .dish__foot{display:flex;align-items:center;gap:var(--space-3)}
+  .dish__emoji{width:56px;height:56px;border-radius:var(--radius-full);background:rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font-size:28px;flex:none}
+  .dish__name{display:flex;flex-direction:column;flex:1;min-width:0}
+  .dish__name strong{font-weight:600}
+  .dish__tags{display:flex;gap:var(--space-2);flex-wrap:wrap}
+  .tag{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border-radius:var(--radius-full);background:rgba(0,0,0,.06);font-weight:600}
+  .tag--in{background:var(--accent);color:var(--on-accent)}
+  .dish--off{opacity:.6}
+  .round{width:40px;height:40px;padding:0;border-radius:var(--radius-full);flex:none}
+  .qty{display:inline-flex;align-items:center;gap:var(--space-1);background:var(--surface);border-radius:var(--radius-full);padding:2px}
+  .qty .pdg-btn{width:32px;min-height:32px;padding:0;border:0}
+  .qty output{min-width:18px;text-align:center;font-weight:600}
+
+  /* Sidebar order summary */
+  .side .card{padding:var(--space-5);gap:var(--space-4)}
+  .side__head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-3)}
+  .count{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 var(--space-2);border-radius:var(--radius-full);background:var(--accent);color:var(--on-accent);font-weight:700}
+  .to{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3);border-radius:var(--radius-3);background:var(--background)}
+  .to svg{width:16px;height:16px;flex:none}
+  .lines{list-style:none;margin:0;padding:0}
+  .line{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:var(--space-3);align-items:center;padding:var(--space-3) 0;border-bottom:var(--border-width) solid var(--border)}
+  .line:last-child{border-bottom:0}
+  .line__text{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .line__right{display:flex;flex-direction:column;align-items:flex-end;gap:var(--space-1)}
+  .line--new{animation:collate 1.4s ease-out}
+  @keyframes collate{0%{background:var(--accent)}100%{background:transparent}}
+  .thumb{width:44px;height:44px;border-radius:var(--radius-full);flex:none;background:var(--surface-sunk);display:flex;align-items:center;justify-content:center;font-size:22px}
+  .linkbtn{padding:0;border:0;background:none;color:var(--text);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left;font-weight:600}
+  .milk-chip{display:inline-flex;align-items:center;gap:var(--space-1);padding:2px var(--space-2);border-radius:var(--radius-full);background:var(--background);border:var(--border-width) solid var(--border);cursor:pointer;font-weight:600;color:var(--text);width:max-content}
+  .milk-chip:hover{border-color:var(--text)}
+  .extras summary{cursor:pointer;font-weight:600}
+  .extras[open] summary{margin-bottom:var(--space-3)}
+  .extras .pdg-field{min-width:0;margin-bottom:var(--space-3)}
+  .paychips{display:flex;gap:var(--space-2);flex-wrap:wrap;border:0;margin:0;padding:0}
+  .paychips legend{padding:0;margin-bottom:var(--space-2);font-weight:600}
+  .paychip{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);border-radius:var(--radius-full);background:var(--background);cursor:pointer;font-weight:600}
+  .paychip:has(input:checked){background:var(--accent);color:var(--on-accent)}
+  .paychip input{accent-color:var(--on-accent);margin:0}
+  .totals{display:flex;justify-content:space-between;align-items:baseline;padding-top:var(--space-3);border-top:var(--border-width) solid var(--border)}
+  .total{font-size:32px;line-height:40px;font-weight:600;letter-spacing:-0.02em}
+  .cta{width:100%;min-height:52px}
+  textarea.pdg-input{resize:vertical;min-height:64px;font:inherit}
+  .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--space-2);padding:var(--space-5) 0}
+  .empty span{font-size:40px}
+
+  /* Status (in the sidebar) */
+  .track{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .track li{display:grid;grid-template-columns:20px 1fr;gap:var(--space-3);padding-bottom:var(--space-4);position:relative}
+  .track li:last-child{padding-bottom:0}
+  .track li:not(:last-child)::before{content:"";position:absolute;left:9px;top:20px;bottom:0;border-left:2px solid var(--surface-sunk)}
+  .track li.done:not(:last-child)::before{border-color:var(--text)}
+  .track__dot{width:20px;height:20px;border-radius:var(--radius-full);background:var(--surface-sunk);display:flex;align-items:center;justify-content:center}
+  .track__dot svg{width:12px;height:12px}
+  .track li.done .track__dot{background:var(--text);color:var(--surface)}
+  .track li.now .track__dot{background:var(--accent);outline:2px solid var(--on-accent)}
+  .track li.later{color:var(--text-muted)}
+  .track strong{font-weight:600}
+
+  /* Mobile: a bar that jumps to the sidebar */
+  .mobilebar{display:none}
+  @media (max-width:1099px){
+    body.has-bar{padding-bottom:84px}
+    body.has-bar .mobilebar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:25;align-items:center;justify-content:space-between;gap:var(--space-4);padding:var(--space-3) var(--space-4);background:var(--surface);border-top:var(--border-width) solid var(--border)}
+    body.has-bar .proto{bottom:92px}
+  }
+
+  /* Dialogs */
+  .dialog{border:0;border-radius:var(--radius-6);padding:var(--space-6);width:min(480px,calc(100vw - 32px));background:var(--surface);color:var(--text)}
+  .dialog::backdrop{background:rgba(22,22,22,.45)}
+  .dialog__body{display:flex;flex-direction:column;gap:var(--space-4)}
+  .dialog__actions{display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:center}
+  .latte{width:100%;max-width:360px;aspect-ratio:1;margin:0 auto;display:block;border-radius:var(--radius-full)}
+  .filebtn{position:relative;overflow:hidden}
+  .filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+  /* Milk picker */
+  .milk-stage{position:relative;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:var(--space-2);border-radius:var(--radius-5);padding:var(--space-4) var(--space-2);background:var(--milk-bg,#F7F7F2);transition:background .35s ease}
+  .milk-scene{position:relative;height:220px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+  .milk-buddy{position:absolute;top:0;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
+  .milk-buddy__face{width:84px;height:84px;border-radius:var(--radius-full);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+  .milk-pour{width:10px;height:56px;border-radius:0 0 6px 6px;background:var(--milk);transform-origin:top;transform:scaleY(0)}
+  .milk-cup{width:120px;height:120px;position:relative}
+  .milk-cup svg{width:100%;height:100%;overflow:visible}
+  .milk-layer{transition:fill .35s ease}
+  .in-left .milk-buddy__face{animation:inLeft .45s cubic-bezier(.2,1.4,.4,1)}
+  .in-right .milk-buddy__face{animation:inRight .45s cubic-bezier(.2,1.4,.4,1)}
+  .pouring .milk-pour{animation:pour .7s ease-in-out}
+  .pouring .milk-cup{animation:slosh .7s ease-in-out}
+  @keyframes inLeft{0%{transform:translateX(-140px) rotate(-30deg);opacity:0}100%{transform:none;opacity:1}}
+  @keyframes inRight{0%{transform:translateX(140px) rotate(30deg);opacity:0}100%{transform:none;opacity:1}}
+  @keyframes pour{0%{transform:scaleY(0)}35%,65%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:bottom}}
+  @keyframes slosh{0%,100%{transform:rotate(0)}40%{transform:rotate(-3deg)}70%{transform:rotate(2deg)}}
+  .milk-arrow{width:44px;height:44px;padding:0;border-radius:var(--radius-full)}
+  .milk-name{text-align:center;display:flex;flex-direction:column;gap:var(--space-1)}
+  .milk-opts{display:flex;gap:var(--space-2);justify-content:center;flex-wrap:wrap;border:0;margin:0;padding:0}
+  .milk-opt{display:flex;flex-direction:column;align-items:center;gap:2px;width:64px;padding:var(--space-2) 0;border-radius:var(--radius-3);border:var(--border-width) solid transparent;background:var(--background);cursor:pointer;font-weight:600;color:var(--text)}
+  .milk-opt span{font-size:24px;line-height:28px}
+  .milk-opt[aria-checked="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--on-accent)}
+  @media (prefers-reduced-motion:reduce){.in-left .milk-buddy__face,.in-right .milk-buddy__face,.pouring .milk-pour,.pouring .milk-cup,.line--new{animation:none}}
+
+  /* Coffee buddy dock (the pop-out window reuses BUDDY_CSS from the script) */
+  .buddy-dock{position:fixed;left:var(--space-4);bottom:var(--space-4);z-index:30}
+  @media (max-width:600px){.buddy-dock .buddy__pet{width:64px;height:70px}.buddy-dock .buddy__bubble{max-width:170px}}
+
+  /* Prototype scenario panel — not part of the visitor UI */
+  .proto{position:fixed;right:var(--space-4);bottom:var(--space-4);z-index:20;max-width:320px}
+  .proto summary{list-style:none;cursor:pointer;margin-left:auto;width:max-content}
+  .proto summary::-webkit-details-marker{display:none}
+  .proto__panel{margin-top:var(--space-2);padding:var(--space-4);gap:var(--space-3);border:var(--border-width) dashed #BDBDBD}
+  .proto__panel label{display:flex;gap:var(--space-2);align-items:flex-start;cursor:pointer}
+  .proto__panel input{margin-top:3px;accent-color:var(--text)}
+  .proto__panel .pdg-btn{width:100%}
+  footer{padding:var(--space-5);text-align:center;color:var(--text-muted)}
+</style>
+  <link rel="stylesheet" href="../embedded.css">
+  <script src="../embedded.js"></script>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="top__title">
+      <a class="caption back" href="../">← Product Designer Gym Cafe</a>
+      <h1 class="display">Corgi Cafe</h1>
+    </div>
+    <span class="caption pill" id="spotPill" aria-live="polite"></span>
+  </header>
+
+  <div id="banners"></div>
+  <div id="main"></div>
+</main>
+
+<div class="mobilebar" id="mobilebar"></div>
+
+<dialog class="dialog" id="milk" aria-labelledby="milkTitle">
+  <div class="dialog__body" id="milkBody"></div>
+</dialog>
+
+<dialog class="dialog" id="cocoa" aria-labelledby="cocoaTitle">
+  <div class="dialog__body">
+    <h2 class="h3" id="cocoaTitle">Cocoa portrait</h2>
+    <p class="caption muted">Our stencil duster prints your photo in cocoa on the foam. Frame your face in the circle.</p>
+    <canvas class="latte" id="latte" width="480" height="480" role="img" aria-label="Preview of your photo dusted in cocoa on the coffee"></canvas>
+    <video id="cam" playsinline muted hidden></video>
+    <p class="caption muted" id="camMsg" aria-live="polite"></p>
+    <div class="dialog__actions" id="cocoaActions"></div>
+    <p class="small muted" style="text-align:center">Prototype: your photo stays on this device and isn't uploaded.</p>
+  </div>
+</dialog>
+
+<div class="buddy-dock" id="buddyDock" hidden></div>
+
+<details class="proto" id="proto">
+  <summary class="caption pdg-btn pdg-btn--secondary">Prototype scenarios</summary>
+  <div class="card proto__panel">
+    <p class="caption muted">For show and tell only. Toggle cases to see how the flow responds.</p>
+    <label class="caption"><input type="checkbox" data-scenario="kitchenClosing"> Kitchen closes in 15 min</label>
+    <label class="caption"><input type="checkbox" data-scenario="closed"> Table ordering is closed</label>
+    <label class="caption"><input type="checkbox" data-scenario="soldOutOnSubmit"> An item sells out at checkout</label>
+    <button class="caption pdg-btn pdg-btn--secondary" data-action="qr">Scan the spot sticker on a table</button>
+    <button class="caption pdg-btn pdg-btn--secondary" data-action="advance">Advance order status</button>
+    <button class="caption pdg-btn pdg-btn--ghost" data-action="restart">Restart</button>
+  </div>
+</details>
+
+<footer class="caption">© Corgi Cafe at Product Designer Gym</footer>
+
+<script>
+// ---------- Icons ----------
+const ICON = {
+  check: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.5l2.3 2.3L9.5 3.8"/></svg>',
+  clock: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="4.6"/><path d="M6 3.6V6l1.6 1.2"/></svg>',
+  alert: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 1.6l4.6 8.4H1.4z"/><path d="M6 5v2.2M6 8.6v.1"/></svg>',
+  info: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="4.6"/><path d="M6 5.4v3M6 3.6v.1"/></svg>',
+  pin: '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M7 12.5s4-3.6 4-6.8a4 4 0 10-8 0c0 3.2 4 6.8 4 6.8z"/><circle cx="7" cy="5.7" r="1.4"/></svg>',
+  dot: '<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2.4" fill="currentColor"/></svg>',
+  left: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>',
+  right: '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>'
+};
+
+// ---------- Spots: the floor is a 24 × 18 grid of ~1m squares, each with a three-word name ----------
+const COLS = 24, ROWS = 18;
+const W1 = ['crema','velvet','roast','pour','steam','foam','bean','drip','grind','brew','latte','mocha'];
+const W2 = ['maple','cloud','ember','honey','pebble','meadow','copper','linen','cedar','river','amber','willow'];
+const W3 = ['sparrow','otter','comet','lantern','tulip','falcon','harbor','button','fern','kettle','saddle','puffin'];
+const COMBOS = W1.length * W2.length * W3.length; // 1728
+// Scramble square index → word combo so neighbouring squares get unrelated words
+const scramble = i => (i * 1103 + 389) % COMBOS;
+const wordsFor = (c, r) => { const n = scramble(r * COLS + c); return [W1[n % 12], W2[Math.floor(n / 12) % 12], W3[Math.floor(n / 144)]].join('.'); };
+const SPOT_BY_WORDS = new Map();
+for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) SPOT_BY_WORDS.set(wordsFor(c, r), {c, r});
+
+// Areas a visitor can't be served in. Cell ranges are inclusive.
+const inRect = (s, c0, r0, c1, r1) => s.c >= c0 && s.c <= c1 && s.r >= r0 && s.r <= r1;
+function spotProblem(s){
+  if (inRect(s, 19, 0, 23, 9)) return 'That square is behind the counter. Tap where you\'re sitting.';
+  if (inRect(s, 19, 11, 23, 13)) return 'That\'s the doorway. Tap where you\'re sitting.';
+  if (s.r >= 15) return 'That\'s the patio. We can\'t bring orders outside yet, so please order at the counter.';
+  return '';
+}
+const zoneOf = s => s.r <= 4 ? 'by the window' : s.r <= 9 ? 'on the main floor' : 'at the long table';
+
+// Furniture is drawn for orientation only — you pin the square you're in, not a table
+const FURNITURE = [
+  {c:1, r:1, w:3, h:3, round:true}, {c:6, r:1, w:3, h:3, round:true}, {c:11, r:1, w:3, h:3, round:true},
+  {c:1, r:6, w:4, h:3}, {c:7, r:6, w:4, h:3}, {c:13, r:6, w:4, h:3},
+  {c:1, r:11, w:15, h:2},
+  {c:1, r:16, w:2, h:2, round:true}, {c:5, r:16, w:2, h:2, round:true}, {c:9, r:16, w:2, h:2, round:true}
+];
+const SAM = {c:9, r:8, name:'Sam', items:2, mins:6};
+const EXAMPLE = wordsFor(14, 7); // the spot printed on the sticker at the middle table
+const near = (a, b) => Math.max(Math.abs(a.c - b.c), Math.abs(a.r - b.r)) <= 2;
+
+// ---------- Menu ----------
+const MENU = [
+  {cat:'Coffee', tint:'--tint-coffee', items:[
+    {id:'espresso', emoji:'☕', name:'Espresso', price:3.20, quote:'A short, sharp double shot pulled from our signature roast.'},
+    {id:'flat', emoji:'☕', name:'Flat White', price:4.50, quote:'Double ristretto under a thin, silky layer of microfoam.', foam:true, milk:true},
+    {id:'capp', emoji:'☕', name:'Cappuccino', price:4.80, quote:'Equal parts espresso, milk and cloud-like foam.', foam:true, milk:true},
+    {id:'latte', emoji:'🥛', name:'Latte', price:4.80, quote:'Our signature roast, balanced with the milk of your choice and a touch of agave.', foam:true, milk:true}
+  ]},
+  {cat:'Cold', tint:'--tint-cold', items:[
+    {id:'matcha', emoji:'🍵', name:'Iced Matcha Latte', price:5.20, quote:'First-harvest ceremonial grade matcha, whisked and poured over ice.', milk:true, base:'#7FA650'},
+    {id:'coldbrew', emoji:'🧊', name:'Cold Brew Set', price:5.00, quote:'Steeped for 18 hours and served over one big, slow cube.'},
+    {id:'sparkling', emoji:'🫧', name:'Sparkling Water', price:3.00, quote:'Chilled and bright, with a slice of lemon.'}
+  ]},
+  {cat:'Food', tint:'--tint-food', kitchen:true, items:[
+    {id:'bowl', emoji:'🥗', name:'Protein Bowl', price:12.00, quote:'Warm grains, soft egg, greens and a generous drizzle of tahini.'},
+    {id:'toast', emoji:'🥑', name:'Avocado Toast', price:10.00, quote:'Thick sourdough, smashed avocado, chilli, lime and toasted seeds.'},
+    {id:'cheese', emoji:'🧀', name:'Grilled Cheese', price:9.00, quote:'Three cheeses melted until golden, pickles on the side.', soldOut:true}
+  ]},
+  {cat:'Bakes', tint:'--tint-bakes', items:[
+    {id:'croissant', emoji:'🥐', name:'Pistachio Croissant', price:5.75, quote:'Twice-baked with house-made pistachio frangipane and crushed nuts.'},
+    {id:'banana', emoji:'🍌', name:'Banana Bread', price:4.00, quote:'Toasted thick and served with salted butter.'},
+    {id:'cookie', emoji:'🍪', name:'Cookie', price:3.00, quote:'Brown butter, dark chocolate, flaky salt.'}
+  ]}
+];
+const ITEMS = Object.fromEntries(MENU.flatMap(c => c.items.map(i => [i.id, {...i, cat:c.cat, tint:c.tint, kitchen:!!c.kitchen}])));
+
+// Milk options for the picker. `color` fills the cup, `bg` tints the stage.
+const MILKS = [
+  {id:'cow',     emoji:'🐄', name:'Cow',     full:'Whole milk',   note:'Creamy, classic and foams like a dream.', extra:0,   color:'#FFFFFF', bg:'#F2F6FF'},
+  {id:'oat',     emoji:'🌾', name:'Oat',     full:'Oat milk',     note:'Toasty, naturally sweet, our barista favourite.', extra:0.70, color:'#EAD9B8', bg:'#FBF3E2'},
+  {id:'almond',  emoji:'🌰', name:'Almond',  full:'Almond milk',  note:'Light and nutty with a delicate finish.', extra:0.70, color:'#F1E2CF', bg:'#F8EEE6'},
+  {id:'soy',     emoji:'🫘', name:'Soy',     full:'Soy milk',     note:'Smooth, rich and the original alt-milk.', extra:0.70, color:'#F5EDD2', bg:'#F7F5E4'},
+  {id:'coconut', emoji:'🥥', name:'Coconut', full:'Coconut milk', note:'Silky and tropical. Holiday in a cup.', extra:0.70, color:'#FBFAF4', bg:'#EAF7F1'}
+];
+const MILK = Object.fromEntries(MILKS.map(m => [m.id, m]));
+
+const TRACK = [
+  {title:'Received', note:'The bar has your order.', buddy:'Got it! Order #{n} is in the queue.'},
+  {title:'Being made', note:'Drinks first, food follows.', buddy:'Being made… about {eta} min.'},
+  {title:'On its way', note:'Look out for Victoria heading your way.', buddy:'On my way to {spot}!'},
+  {title:'At your spot', note:'Enjoy. Need anything else? Order another round.', buddy:'I\'m here. Enjoy!'}
+];
+const STEP_MS = 15000; // auto-advance the simulated order
+
+// ---------- State ----------
+// The cart is keyed by line: "itemId|milkId" (milk is empty for items without milk)
+const fresh = () => ({
+  spot:null, spotError:'', join:'join', filter:'All',
+  cart:{},               // lineKey -> qty
+  portraits:{},          // lineKey -> PNG data URL of the cocoa stencil preview
+  name:'', notes:'', pay:'now',
+  soldNow:null,          // item id that sold out at checkout
+  order:null,
+  moving:false, notice:'', lastAdded:null, buddyHidden:false
+});
+let state = fresh();
+const scenario = {kitchenClosing:false, closed:false, soldOutOnSubmit:false};
+let timer = null;
+
+// ---------- Helpers ----------
+const $ = s => document.querySelector(s);
+const money = n => '$' + n.toFixed(2);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const keyOf = (id, milk) => `${id}|${milk || ''}`;
+const lineOf = (key, qty) => {
+  const [id, milk] = key.split('|');
+  const it = ITEMS[id], m = MILK[milk];
+  return {...it, key, milk:m || null, qty, unit:it.price + (m ? m.extra : 0)};
+};
+const cartLines = () => Object.entries(state.cart).filter(([,q]) => q > 0).map(([k,q]) => lineOf(k, q));
+const cartCount = () => cartLines().reduce((n,l) => n + l.qty, 0);
+const cartTotal = () => cartLines().reduce((n,l) => n + l.qty * l.unit, 0);
+const countOf = id => cartLines().filter(l => l.id === id).reduce((n,l) => n + l.qty, 0);
+const unavailable = it => it.soldOut || it.id === state.soldNow;
+const spotOk = () => state.spot && !spotProblem(state.spot);
+const joined = () => !!(spotOk() && near(state.spot, SAM) && state.join === 'join');
+const wordsHtml = w => w.split('.').map(esc).join('<span>.</span>');
+const badge = (kind, icon, word) => `<span class="small pdg-badge pdg-badge--${kind}">${ICON[icon]}${word}</span>`;
+function addLine(key, n = 1){
+  state.cart[key] = (state.cart[key] || 0) + n;
+  state.lastAdded = key;
+}
+
+// ---------- Render ----------
+function render(){
+  const focusKey = document.activeElement && document.activeElement.dataset.key;
+  renderPill();
+  renderBanners();
+  $('#main').innerHTML = scenario.closed && !state.order ? viewClosed() : `
+    <div class="layout">
+      <div class="content">
+        <section aria-labelledby="locLabel"><h2 class="caption label" id="locLabel">Your location</h2>${viewLocation()}</section>
+        <section aria-labelledby="menuLabel"><h2 class="caption label" id="menuLabel">Browse menu</h2>${viewMenu()}</section>
+      </div>
+      <aside class="side" id="side" aria-labelledby="sumLabel">
+        <h2 class="caption label" id="sumLabel">${state.order ? 'Your order' : 'Order summary'}</h2>
+        ${state.order ? viewStatus() : viewSummary()}
+      </aside>
+    </div>`;
+  renderMobileBar();
+  renderBuddy();
+  state.lastAdded = null; // only flash a line once
+  if (focusKey){ const el = document.querySelector(`[data-key="${focusKey}"]`); if (el) el.focus(); }
+}
+
+function renderPill(){
+  const p = $('#spotPill');
+  const s = state.order && !state.moving ? state.order.spot : state.spot;
+  if (s && !spotProblem(s)){ p.className = 'caption pill pill--on'; p.innerHTML = `${ICON.pin}${wordsFor(s.c, s.r)}`; }
+  else { p.className = 'caption pill'; p.textContent = 'No spot yet'; }
+}
+
+function renderBanners(){
+  const out = [];
+  if (scenario.kitchenClosing && !scenario.closed && !state.order)
+    out.push(`<div class="banner banner--warning" role="status">${ICON.alert}<p class="caption"><strong>Kitchen closes in 15 minutes.</strong> Last food orders by 17:45. Drinks and bakes until 18:00.</p></div>`);
+  $('#banners').innerHTML = out.join('');
+}
+
+function renderMobileBar(){
+  const show = !state.order && !scenario.closed && cartCount() > 0;
+  document.body.classList.toggle('has-bar', show);
+  $('#mobilebar').innerHTML = show ? `
+    <span class="body"><strong>${cartCount()} item${cartCount() === 1 ? '' : 's'}</strong> · ${money(cartTotal())}</span>
+    <button class="body pdg-btn pdg-btn--primary" data-action="toSide">View order</button>` : '';
+}
+
+function viewClosed(){
+  return `<div class="card" style="max-width:640px">
+    <h2 class="h2">Table ordering is closed right now</h2>
+    <p class="body muted">We take orders to your spot during opening hours.</p>
+    <p class="body">Mon–Fri 7:30–18:00<br>Sat–Sun 9:00–16:00</p>
+    <div><a class="body pdg-btn pdg-btn--secondary" href="../#menu">See the menu</a></div>
+  </div>`;
+}
+
+function viewLocation(){
+  const s = state.spot;
+  const locked = state.order && !state.moving;
+  const pct = (v, n) => (v / n * 100).toFixed(3) + '%';
+  const box = (c, r, w, h) => `left:${pct(c, COLS)};top:${pct(r, ROWS)};width:${pct(w, COLS)};height:${pct(h, ROWS)}`;
+  const furniture = FURNITURE.map(f => `<span class="f ${f.round ? 'f--round' : ''}" style="${box(f.c + .15, f.r + .15, f.w - .3, f.h - .3)}"></span>`).join('');
+  const problem = s ? spotProblem(s) : '';
+  const shown = locked ? state.order.spot : s;
+
+  let spotInfo;
+  if (shown && !problem){
+    spotInfo = `
+      <div class="spot">
+        <div><p class="caption muted">${state.moving ? 'Your new spot' : 'You\'re at'} · ${zoneOf(shown)}</p><p class="words">${wordsHtml(wordsFor(shown.c, shown.r))}</p></div>
+        <button class="caption pdg-btn pdg-btn--secondary" data-action="copySpot" data-key="copy">Copy spot</button>
+      </div>`;
+  } else if (problem){
+    spotInfo = `<div class="banner banner--error" role="alert">${ICON.alert}<p class="caption">${problem}</p></div>`;
+  } else {
+    spotInfo = `<p class="body muted">Tap the square you're sitting in. Every 1m square has its own three words, so we can find you wherever you are, including sofas and window ledges.</p>`;
+  }
+
+  const showJoin = !locked && spotOk() && near(s, SAM);
+  const join = showJoin ? `
+    <fieldset class="choices">
+      <legend class="caption">${SAM.name} is ordering right next to you (${SAM.items} items, ${SAM.mins} min ago)</legend>
+      <label class="choice"><input type="radio" name="join" value="join" ${state.join === 'join' ? 'checked' : ''}>
+        <span><strong class="body" style="font-weight:600">Add to ${SAM.name}'s order</strong><span class="caption muted">One bill, everything arrives together.</span></span></label>
+      <label class="choice"><input type="radio" name="join" value="separate" ${state.join === 'separate' ? 'checked' : ''}>
+        <span><strong class="body" style="font-weight:600">Start my own order</strong><span class="caption muted">Separate bill, same spot.</span></span></label>
+    </fieldset>` : '';
+
+  const moveBar = state.moving ? `
+    <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+      <button class="body pdg-btn pdg-btn--primary" data-action="confirmMove" ${spotOk() ? '' : 'disabled'}>Move my order here</button>
+      <button class="body pdg-btn pdg-btn--ghost" data-action="cancelMove">Cancel</button>
+    </div>` : '';
+
+  const helpSpot = locked ? state.order.spot : spotOk() ? s : null;
+  return `
+  <div class="card">
+    <div class="loc">
+      <div class="well">
+        <div class="map ${locked ? 'is-locked' : ''}" id="map" tabindex="${locked ? -1 : 0}" role="application"
+          aria-label="Cafe floor plan. ${locked ? '' : 'Tap or use arrow keys to mark the square you are in.'}" aria-describedby="spotLive">
+          ${furniture}
+          <span class="f f--zone small" style="${box(19, 0, 5, 10)}">Counter</span>
+          <span class="f f--zone small" style="${box(19, 11, 5, 3)}">Door</span>
+          <span class="map__wall" style="top:${pct(15, ROWS)}"></span>
+          <span class="map__tag small" style="left:${pct(12.5, COLS)};top:${pct(16.2, ROWS)}">Patio · counter service</span>
+          ${!locked && !state.moving ? `<span class="who who--sam small" style="left:${pct(SAM.c + .5, COLS)};top:${pct(SAM.r + .5, ROWS)}" title="Sam">S</span>` : ''}
+          ${shown ? `<span class="sq ${problem && !locked ? 'sq--bad' : ''}" style="${box(shown.c, shown.r, 1, 1)}"></span>` : ''}
+        </div>
+      </div>
+      <div class="loc__info">
+        <div id="spotLive" aria-live="polite">${spotInfo}</div>
+        ${join}${moveBar}
+        ${locked ? '' : `
+        <form class="spotform" data-form="spot" novalidate>
+          <div class="pdg-field ${state.spotError ? 'pdg-field--error' : ''}">
+            <label class="caption pdg-field__label" for="spotWords">Or type three words from a sticker or a friend</label>
+            <input class="body pdg-input" id="spotWords" name="spotWords" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="e.g. ${EXAMPLE}" ${state.spotError ? 'aria-invalid="true" aria-describedby="spotHint"' : ''}>
+            ${state.spotError ? `<p class="caption pdg-field__hint" id="spotHint">${state.spotError}</p>` : ''}
+          </div>
+          <button class="body pdg-btn pdg-btn--secondary" type="submit">Find spot</button>
+        </form>`}
+        <div class="host">
+          <div class="host__who"><span class="avatar avatar--host body" aria-hidden="true">VP</span>
+            <div><p class="body" style="font-weight:600">Victoria P.</p><p class="caption muted">Your host today</p></div></div>
+          <button class="caption pdg-btn pdg-btn--ghost" data-action="help">Ask Victoria</button>
+        </div>
+        ${state.notice === 'help' ? `<div class="banner banner--info" role="status">${ICON.info}<p class="caption">Victoria is on her way${helpSpot ? ` to ${wordsFor(helpSpot.c, helpSpot.r)}` : '. Mark your spot so she can find you'}.</p></div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewMenu(){
+  const cats = ['All', ...MENU.map(c => c.cat)];
+  const chips = `<div class="chips" role="group" aria-label="Filter menu">${cats.map(c => `<button class="caption chip" data-action="filter" data-cat="${c}" data-key="chip-${c}" aria-pressed="${state.filter === c}">${c}</button>`).join('')}</div>`;
+  const items = Object.values(ITEMS).filter(i => state.filter === 'All' || i.cat === state.filter);
+  return chips + `<div class="menu">${items.map(viewDish).join('')}</div>`;
+}
+
+function viewDish(it){
+  const off = unavailable(it);
+  const n = countOf(it.id);
+  const tags = [
+    n && !state.order ? `<span class="small tag tag--in">${n} in order</span>` : '',
+    it.milk && !off ? `<span class="small tag">🥛 Pick your milk</span>` : '',
+    it.foam && !off ? `<span class="small tag">☺ Cocoa portrait</span>` : '',
+    it.kitchen && scenario.kitchenClosing && !off ? badge('warning', 'clock', 'Last orders') : '',
+    off ? badge('neutral', 'dot', 'Sold out') : ''
+  ].join('');
+  let control = '';
+  if (!off && state.order) control = `<button class="h4 pdg-btn pdg-btn--secondary round" data-action="again" data-id="${it.id}" aria-label="Add ${it.name} to a new order">+</button>`;
+  else if (!off && it.milk) control = `<button class="h4 pdg-btn pdg-btn--primary round" data-action="pickMilk" data-id="${it.id}" data-key="add-${it.id}" aria-label="Add ${it.name}, choose your milk">+</button>`;
+  else if (!off) {
+    const k = keyOf(it.id), q = state.cart[k] || 0;
+    control = q ? qtyControl(k, it.name, q)
+      : `<button class="h4 pdg-btn pdg-btn--primary round" data-action="inc" data-line="${k}" data-key="add-${it.id}" aria-label="Add ${it.name}">+</button>`;
+  }
+  return `
+  <article class="dish ${off ? 'dish--off' : ''}" style="--tint:var(${it.tint})">
+    <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+      <p class="dish__quote">“${it.quote}”</p>
+      ${tags ? `<div class="dish__tags">${tags}</div>` : ''}
+    </div>
+    <div class="dish__foot">
+      <span class="dish__emoji" aria-hidden="true">${it.emoji}</span>
+      <span class="dish__name"><strong class="body">${it.name}</strong><span class="caption muted">${money(it.price)}</span></span>
+      ${control}
+    </div>
+  </article>`;
+}
+
+function qtyControl(key, name, q){
+  const k = key.replace('|', '_');
+  return `<div class="qty" role="group" aria-label="${name} quantity">
+    <button class="body pdg-btn pdg-btn--secondary" data-action="dec" data-line="${key}" data-key="dec-${k}" aria-label="Remove one ${name}">−</button>
+    <output class="body">${q}</output>
+    <button class="body pdg-btn pdg-btn--secondary" data-action="inc" data-line="${key}" data-key="inc-${k}" aria-label="Add one more ${name}">+</button>
+  </div>`;
+}
+
+function viewSummary(){
+  const lines = cartLines();
+  const head = `<div class="side__head"><h3 class="h4">Your order</h3>${lines.length ? `<span class="caption count" aria-label="${cartCount()} items">${cartCount()}</span>` : ''}</div>`;
+  const to = spotOk()
+    ? `<div class="to caption">${ICON.pin}<span>To <strong>${wordsFor(state.spot.c, state.spot.r)}</strong>${joined() ? ` · with ${SAM.name}` : ''}</span></div>`
+    : `<div class="to caption muted">${ICON.pin}<span>Mark your spot on the map</span></div>`;
+  if (!lines.length) return `<div class="card">${head}${to}<div class="empty"><span aria-hidden="true">🐕</span><p class="body muted">Your order collects here. Tap + on anything in the menu.</p></div></div>`;
+
+  const sold = state.soldNow && countOf(state.soldNow) ? ITEMS[state.soldNow] : null;
+  const blockers = [];
+  if (!spotOk()) blockers.push('Mark your spot on the map so we can find you.');
+  if (sold) blockers.push(`Remove ${sold.name} to continue.`);
+  const extrasOpen = state.name || state.notes;
+
+  return `
+  <div class="card">
+    ${head}${to}
+    ${sold ? `<div class="banner banner--error" role="alert">${ICON.alert}<p class="caption"><strong>Sorry, ${sold.name} just sold out.</strong> Remove it, or swap it for something else.</p></div>` : ''}
+    <ul class="lines">${lines.map(l => `
+      <li class="line ${l.key === state.lastAdded ? 'line--new' : ''}">
+        ${state.portraits[l.key] ? `<img class="thumb" src="${state.portraits[l.key]}" alt="Your cocoa portrait">` : `<span class="thumb" aria-hidden="true">${l.milk ? l.milk.emoji : l.emoji}</span>`}
+        <div class="line__text">
+          <span class="body" style="font-weight:600">${l.name}</span>
+          ${l.milk ? `<button class="small milk-chip" data-action="pickMilk" data-id="${l.id}" data-line="${l.key}" aria-label="Change milk, currently ${l.milk.full}">${l.milk.emoji} ${l.milk.full}${l.milk.extra ? ` +${money(l.milk.extra)}` : ''}</button>` : ''}
+          ${l.id === state.soldNow ? badge('error', 'alert', 'Sold out') : ''}
+          ${l.foam && l.id !== state.soldNow ? `<button class="small linkbtn" data-action="portrait" data-line="${l.key}">${state.portraits[l.key] ? 'Change cocoa portrait' : '+ Cocoa portrait'}</button>` : ''}
+        </div>
+        <div class="line__right">
+          <span class="caption">${money(l.qty * l.unit)}</span>
+          ${l.id === state.soldNow ? `<button class="small pdg-btn pdg-btn--secondary" style="min-height:32px" data-action="remove" data-line="${l.key}" data-key="remove-${l.key.replace('|','_')}">Remove</button>` : qtyControl(l.key, l.name, l.qty)}
+        </div>
+      </li>`).join('')}
+    </ul>
+    <form data-form="order" novalidate style="display:flex;flex-direction:column;gap:var(--space-4)">
+      <details class="extras" ${extrasOpen ? 'open' : ''}>
+        <summary class="caption">Add a name or note</summary>
+        <div class="pdg-field">
+          <label class="caption pdg-field__label" for="name">Name</label>
+          <input class="body pdg-input" id="name" autocomplete="given-name" value="${esc(state.name)}" aria-describedby="nameHint">
+          <p class="caption pdg-field__hint" id="nameHint">Helps Victoria find you on a busy table.</p>
+        </div>
+        <div class="pdg-field">
+          <label class="caption pdg-field__label" for="notes">Notes</label>
+          <textarea class="body pdg-input" id="notes" aria-describedby="notesHint">${esc(state.notes)}</textarea>
+          <p class="caption pdg-field__hint" id="notesHint">Allergies, extra cutlery, anything else.</p>
+        </div>
+      </details>
+      ${joined() ? `<div class="banner banner--info">${ICON.info}<p class="caption">This goes on <strong>${SAM.name}'s bill</strong>. You'll pay together at the counter before you leave.</p></div>` : `
+      <fieldset class="paychips">
+        <legend class="caption">Payment</legend>
+        <label class="caption paychip"><input type="radio" name="pay" value="now" ${state.pay === 'now' ? 'checked' : ''}>Pay now</label>
+        <label class="caption paychip"><input type="radio" name="pay" value="later" ${state.pay === 'later' ? 'checked' : ''}>At the counter later</label>
+      </fieldset>`}
+      <div class="totals"><span class="caption muted">Total</span><span class="total">${money(cartTotal())}</span></div>
+      <button class="body pdg-btn pdg-btn--primary cta" type="submit" ${blockers.length ? 'disabled aria-describedby="blockers"' : ''}>${joined() || state.pay === 'later' ? 'Place order' : 'Pay and place order'}</button>
+      ${blockers.length ? `<p class="caption muted" id="blockers">${blockers.join(' ')}</p>` : ''}
+    </form>
+  </div>`;
+}
+
+function viewStatus(){
+  const o = state.order, i = o.status, done = i === TRACK.length - 1;
+  const w = wordsFor(o.spot.c, o.spot.r);
+  return `
+  <div class="card">
+    <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+      <div>${done ? badge('success', 'check', 'Delivered') : badge('neutral', 'clock', 'In progress')}</div>
+      <h3 class="h2">${done ? 'Enjoy!' : TRACK[i].title}</h3>
+      <p class="caption muted">Order #${o.number} · ${TRACK[i].note}${done ? '' : ` About ${Math.max(1, o.eta - i * 3)} min.`}</p>
+    </div>
+    ${state.notice === 'moved' ? `<div class="banner banner--info" role="status">${ICON.info}<p class="caption">Got it. Victoria will bring it to <strong>${w}</strong>.</p></div>` : ''}
+    ${state.notice === 'buddyFallback' ? `<div class="banner banner--info" role="status">${ICON.info}<p class="caption">This browser can't float the buddy above other windows, so it's staying on this page and updating the tab title instead. Chrome and Edge can pop it out.</p></div>` : ''}
+    <ol class="track" aria-label="Order status">${TRACK.map((s, n) => {
+      const cls = n < i || done ? 'done' : n === i ? 'now' : 'later';
+      return `<li class="${cls}"><span class="track__dot">${cls === 'done' ? ICON.check : ''}</span>
+        <span><strong class="caption">${s.title}</strong> <span class="small muted">${cls === 'done' ? 'Done' : cls === 'now' ? 'Now' : ''}</span></span></li>`;
+    }).join('')}</ol>
+    <button class="body pdg-btn pdg-btn--primary cta" data-action="popBuddy">${pip ? 'Buddy is popped out' : 'Pop out coffee buddy'}</button>
+    <ul class="lines">${o.items.map(l => `
+      <li class="line">
+        ${o.portraits[l.key] ? `<img class="thumb" src="${o.portraits[l.key]}" alt="Your cocoa portrait">` : `<span class="thumb" aria-hidden="true">${l.milk ? l.milk.emoji : l.emoji}</span>`}
+        <div class="line__text"><span class="body">${l.qty}× ${l.name}</span>
+          ${l.milk ? `<span class="small muted">${l.milk.full}</span>` : ''}
+          ${o.portraits[l.key] ? `<span class="small muted">${i === 0 ? 'Cocoa portrait queued' : i === 1 ? 'Dusting your portrait…' : 'Cocoa portrait done'}</span>` : ''}</div>
+        <span class="caption">${money(l.qty * l.unit)}</span>
+      </li>`).join('')}
+    </ul>
+    <div class="totals"><span class="caption muted">${o.joined ? `On ${SAM.name}'s bill` : o.pay === 'now' ? 'Paid' : 'Pay at the counter'} · ${w}</span><span class="total">${money(o.total)}</span></div>
+    <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+      ${done ? '' : `<button class="caption pdg-btn pdg-btn--secondary" data-action="move">I moved</button>`}
+      <button class="caption pdg-btn pdg-btn--secondary" data-action="again">${done ? 'Order another round' : 'Start another order'}</button>
+    </div>
+  </div>`;
+}
+
+// ---------- Milk picker ----------
+// Swap milks with the arrows, the option buttons, ←/→ keys or a swipe. Each swap pours a little milk into the cup.
+let milkFor = null;   // {id, line} — line is set when changing the milk on an existing order line
+let milkIdx = 0;
+
+function cupSvg(base){
+  return `<svg viewBox="0 0 120 120" aria-hidden="true">
+    <path d="M96 52c14 0 14 26 0 26" stroke="#161616" stroke-width="5" fill="none"/>
+    <path d="M18 30h84l-8 72a10 10 0 01-10 9H36a10 10 0 01-10-9z" fill="#fff" stroke="#161616" stroke-width="5" stroke-linejoin="round"/>
+    <clipPath id="cupClip"><path d="M21 33h78l-7.6 68a7 7 0 01-7 6H35.6a7 7 0 01-7-6z"/></clipPath>
+    <g clip-path="url(#cupClip)">
+      <rect x="0" y="80" width="120" height="40" fill="${base}"/>
+      <rect class="milk-layer" id="milkLayer" x="0" y="44" width="120" height="38" style="fill:var(--milk)"/>
+      <path d="M0 44q15-6 30 0t30 0 30 0 30 0v4H0z" style="fill:var(--milk)" class="milk-layer"/>
+    </g>
+  </svg>`;
+}
+
+function openMilk(id, line){
+  milkFor = {id, line:line || null};
+  const current = line ? line.split('|')[1] : 'cow';
+  milkIdx = Math.max(0, MILKS.findIndex(m => m.id === current));
+  const it = ITEMS[id];
+  $('#milkBody').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3)">
+      <div><h2 class="h3" id="milkTitle">Pick your milk</h2><p class="caption muted">${it.name}</p></div>
+      <button class="caption pdg-btn pdg-btn--ghost" data-action="closeMilk">Close</button>
+    </div>
+    <div class="milk-stage" id="milkStage">
+      <button class="pdg-btn pdg-btn--secondary milk-arrow" data-action="milkPrev" aria-label="Previous milk">${ICON.left}</button>
+      <div class="milk-scene" id="milkScene">
+        <div class="milk-buddy"><div class="milk-buddy__face" id="milkFace"></div><div class="milk-pour"></div></div>
+        <div class="milk-cup">${cupSvg(it.base || '#5A3825')}</div>
+      </div>
+      <button class="pdg-btn pdg-btn--secondary milk-arrow" data-action="milkNext" aria-label="Next milk">${ICON.right}</button>
+    </div>
+    <div class="milk-name" aria-live="polite" id="milkName"></div>
+    <div class="milk-opts" role="radiogroup" aria-label="Milk">
+      ${MILKS.map((m, n) => `<button class="small milk-opt" role="radio" data-action="milkSet" data-idx="${n}" aria-checked="false"><span aria-hidden="true">${m.emoji}</span>${m.name}</button>`).join('')}
+    </div>
+    <button class="body pdg-btn pdg-btn--primary cta" data-action="milkConfirm" id="milkConfirm"></button>`;
+  paintMilk(0);
+  $('#milk').showModal();
+  $(`.milk-opt[data-idx="${milkIdx}"]`).focus();
+}
+
+function paintMilk(dir){
+  const m = MILKS[milkIdx], it = ITEMS[milkFor.id];
+  const stage = $('#milkStage'), scene = $('#milkScene');
+  stage.style.setProperty('--milk-bg', m.bg);
+  scene.style.setProperty('--milk', m.color);
+  $('#milkFace').textContent = m.emoji;
+  $('#milkName').innerHTML = `<p class="h3">${m.full}</p><p class="caption muted">${m.note}</p><p class="caption" style="font-weight:600">${m.extra ? `+${money(m.extra)}` : 'Included'}</p>`;
+  document.querySelectorAll('.milk-opt').forEach((b, n) => { b.setAttribute('aria-checked', n === milkIdx); b.tabIndex = n === milkIdx ? 0 : -1; });
+  $('#milkConfirm').textContent = `${milkFor.line ? 'Update' : 'Add'} ${m.name.toLowerCase()} ${it.name.toLowerCase()} · ${money(it.price + m.extra)}`;
+  if (dir){ // replay the swap animation
+    scene.classList.remove('in-left', 'in-right', 'pouring');
+    void scene.offsetWidth;
+    scene.classList.add(dir > 0 ? 'in-right' : 'in-left', 'pouring');
+  }
+}
+
+function swapMilk(to){
+  const dir = to > milkIdx || (milkIdx === MILKS.length - 1 && to === 0) ? 1 : -1;
+  milkIdx = (to + MILKS.length) % MILKS.length;
+  paintMilk(dir);
+}
+
+function confirmMilk(){
+  const key = keyOf(milkFor.id, MILKS[milkIdx].id);
+  if (milkFor.line && milkFor.line !== key){
+    // Move the whole line (and its portrait) to the new milk, merging with any line that already has it
+    addLine(key, state.cart[milkFor.line]);
+    if (state.portraits[milkFor.line] && !state.portraits[key]) state.portraits[key] = state.portraits[milkFor.line];
+    delete state.cart[milkFor.line]; delete state.portraits[milkFor.line];
+  } else if (!milkFor.line) addLine(key);
+  $('#milk').close();
+  render();
+}
+
+// Swipe left/right on the stage to swap
+let swipeX = null;
+document.addEventListener('pointerdown', e => { if (e.target.closest('#milkScene')) swipeX = e.clientX; });
+document.addEventListener('pointerup', e => {
+  if (swipeX === null) return;
+  const dx = e.clientX - swipeX; swipeX = null;
+  if (Math.abs(dx) > 40) swapMilk(milkIdx + (dx < 0 ? 1 : -1));
+});
+
+// ---------- Coffee buddy ----------
+// Sits in the corner while you wait; "Pop out" uses Document Picture-in-Picture so it floats above other tabs and apps.
+let pip = null;
+const BUDDY_CSS = `
+  .buddy{display:flex;align-items:flex-end;gap:10px;font-family:"DM Sans",sans-serif;color:#161616}
+  .buddy--pip{height:100vh;margin:0;padding:12px;box-sizing:border-box;flex-direction:column;align-items:center;justify-content:center;background:#F4F4F4;gap:8px}
+  .buddy__bubble{background:#fff;border-radius:16px;padding:10px 14px;font-size:14px;line-height:20px;max-width:200px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+  .buddy__bubble b{display:block;font-size:12px;line-height:16px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .buddy--pip .buddy__bubble{text-align:center}
+  .buddy__pet{width:96px;height:104px;flex:none;animation:bob 2.4s ease-in-out infinite;transform-origin:50% 100%}
+  .buddy--busy .buddy__pet{animation-duration:.9s}
+  .buddy--walk .buddy__pet{animation:waddle .5s ease-in-out infinite}
+  .buddy__steam path{animation:steam 1.6s ease-in-out infinite;opacity:0}
+  .buddy__steam path:nth-child(2){animation-delay:.5s}
+  .buddy__steam path:nth-child(3){animation-delay:1s}
+  .buddy__x{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#161616;color:#fff;cursor:pointer;font:600 12px/24px "DM Sans",sans-serif}
+  .buddy__pop{border:0;background:#161616;color:#fff;border-radius:999px;padding:6px 12px;font:600 12px/16px "DM Sans",sans-serif;cursor:pointer;margin-top:6px}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes waddle{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+  @keyframes steam{0%{opacity:0;transform:translateY(4px)}40%{opacity:.8}100%{opacity:0;transform:translateY(-8px)}}
+  @media (prefers-reduced-motion:reduce){.buddy__pet,.buddy__steam path{animation:none;opacity:.8}}`;
+document.head.insertAdjacentHTML('beforeend', `<style>${BUDDY_CSS}</style>`);
+
+function buddySvg(stage){
+  // stage 0 sleepy · 1 busy · 2 walking · 3 happy
+  const eyes = [
+    '<path d="M38 52q4 3 8 0M58 52q4 3 8 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/><text x="70" y="34" font-size="11" font-weight="700" fill="#666" font-family="DM Sans,sans-serif">z</text>',
+    '<circle cx="42" cy="52" r="3.6" fill="#161616"/><circle cx="62" cy="52" r="3.6" fill="#161616"/><circle cx="43.2" cy="50.8" r="1.1" fill="#fff"/><circle cx="63.2" cy="50.8" r="1.1" fill="#fff"/>',
+    '<circle cx="44" cy="52" r="3.6" fill="#161616"/><circle cx="64" cy="52" r="3.6" fill="#161616"/>',
+    '<path d="M37 53q5-6 10 0M57 53q5-6 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+  ][stage];
+  const mouth = stage === 3 ? '<path d="M45 62q7 8 14 0" stroke="#161616" stroke-width="2.4" fill="#E86A6A" stroke-linecap="round"/>'
+    : stage === 0 ? '<path d="M49 64h6" stroke="#161616" stroke-width="2.4" stroke-linecap="round"/>'
+    : '<path d="M47 62q5 5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+  const legs = stage === 2 ? '<path d="M40 92v8M64 92v8" stroke="#161616" stroke-width="3" stroke-linecap="round"/>' : '';
+  const heart = stage === 3 ? '<path d="M82 20c-3-5-10-2-7 4l7 6 7-6c3-6-4-9-7-4z" fill="#E86A6A"/>' : '';
+  return `<svg class="buddy__pet" viewBox="0 0 104 112" aria-hidden="true">
+    <g class="buddy__steam" stroke="#9A9A9A" stroke-width="2.4" fill="none" stroke-linecap="round">
+      ${stage >= 1 ? '<path d="M40 22q-4-6 0-12"/><path d="M52 20q-4-6 0-12"/><path d="M64 22q-4-6 0-12"/>' : ''}
+    </g>
+    ${heart}
+    <path d="M84 46c10 0 12 18 0 18" stroke="#161616" stroke-width="3" fill="none"/>
+    <path d="M18 34h68l-6 54a8 8 0 01-8 7H32a8 8 0 01-8-7z" fill="#fff" stroke="#161616" stroke-width="3" stroke-linejoin="round"/>
+    <ellipse cx="52" cy="34" rx="34" ry="6" fill="#8A5A3C" stroke="#161616" stroke-width="3"/>
+    <ellipse cx="34" cy="60" rx="5" ry="3" fill="#B9F17C"/><ellipse cx="70" cy="60" rx="5" ry="3" fill="#B9F17C"/>
+    ${eyes}${mouth}${legs}
+  </svg>`;
+}
+
+function buddyHtml(inPip){
+  const o = state.order, i = o.status;
+  const msg = TRACK[i].buddy.replace('{n}', o.number).replace('{eta}', Math.max(1, o.eta - i * 3)).replace('{spot}', wordsFor(o.spot.c, o.spot.r));
+  const mood = i === 1 ? 'buddy--busy' : i === 2 ? 'buddy--walk' : '';
+  return `<div class="buddy ${inPip ? 'buddy--pip' : ''} ${mood}" role="status" aria-live="polite">
+    ${inPip ? '' : '<div style="position:relative">'}
+    ${buddySvg(i)}
+    ${inPip ? '' : `<button class="buddy__x" data-action="hideBuddy" aria-label="Hide coffee buddy">×</button></div>`}
+    <div class="buddy__bubble"><b>Order #${o.number} · ${TRACK[i].title}</b>${msg}
+      ${inPip ? '' : `<br><button class="buddy__pop" data-action="popBuddy">${'documentPictureInPicture' in window ? 'Pop out above other tabs' : 'Keep me on this page'}</button>`}
+    </div>
+  </div>`;
+}
+
+function renderBuddy(){
+  const dock = $('#buddyDock');
+  const o = state.order;
+  if (!o){ dock.hidden = true; document.title = 'Corgi Cafe · Order to your spot'; if (pip) pip.close(); return; }
+  document.title = `${['🧾','☕','🚶','✅'][o.status]} ${TRACK[o.status].title} · #${o.number}`;
+  dock.hidden = !!pip || state.buddyHidden;
+  if (!dock.hidden) dock.innerHTML = buddyHtml(false);
+  if (pip) pip.document.body.innerHTML = buddyHtml(true);
+}
+
+async function popBuddy(){
+  if (!('documentPictureInPicture' in window)){ state.notice = 'buddyFallback'; state.buddyHidden = false; render(); return; }
+  if (pip){ pip.focus(); return; }
+  try {
+    pip = await documentPictureInPicture.requestWindow({width:260, height:300});
+  } catch { state.notice = 'buddyFallback'; state.buddyHidden = false; render(); return; }
+  pip.document.title = 'Coffee buddy';
+  pip.document.head.innerHTML = `<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet"><style>body{margin:0}${BUDDY_CSS}</style>`;
+  pip.addEventListener('pagehide', () => { pip = null; render(); });
+  render();
+}
+
+// ---------- Cocoa portrait ----------
+const STENCIL = 72;         // stencil resolution — one cocoa dot per pixel
+const BAYER = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+let camStream = null, liveRaf = null, cocoaFor = null, captured = null;
+const stencilCanvas = document.createElement('canvas');
+stencilCanvas.width = stencilCanvas.height = STENCIL;
+
+function drawLatte(dots){
+  const cv = $('#latte'), g = cv.getContext('2d'), S = cv.width, cx = S / 2, R = S * 0.47;
+  g.clearRect(0, 0, S, S);
+  g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(cx, cx, R, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#E3E3E3'; g.lineWidth = S * 0.01; g.stroke();
+  g.fillStyle = '#7A4B2E'; g.beginPath(); g.arc(cx, cx, R * 0.88, 0, Math.PI * 2); g.fill();
+  const foam = g.createRadialGradient(cx, cx * 0.95, R * 0.1, cx, cx, R * 0.84);
+  foam.addColorStop(0, '#F7EBD9'); foam.addColorStop(0.75, '#EBD3B2'); foam.addColorStop(1, '#C9986A');
+  g.fillStyle = foam; g.beginPath(); g.arc(cx, cx, R * 0.84, 0, Math.PI * 2); g.fill();
+  if (!dots) return;
+  const step = (R * 1.5) / STENCIL, x0 = cx - (STENCIL / 2) * step;
+  g.fillStyle = 'rgba(74,44,26,0.82)';
+  for (let y = 0; y < STENCIL; y++) for (let x = 0; x < STENCIL; x++){
+    if (!dots[y * STENCIL + x]) continue;
+    const dx = x - STENCIL / 2 + .5, dy = y - STENCIL / 2 + .5;
+    if (dx * dx + dy * dy > (STENCIL / 2) * (STENCIL / 2) * 0.92) continue; // stencil is round
+    const h = ((x * 73856093) ^ (y * 19349663)) >>> 0;                    // stable jitter, no flicker
+    const jx = ((h & 255) / 255 - .5) * step * .5, jy = (((h >> 8) & 255) / 255 - .5) * step * .5;
+    g.beginPath(); g.arc(x0 + x * step + step / 2 + jx, x0 + y * step + step / 2 + jy, step * (.42 + ((h >> 16) & 63) / 400), 0, Math.PI * 2); g.fill();
+  }
+}
+
+// Turn a photo or video frame into a dithered cocoa stencil
+function stencilFrom(src, sw, sh, mirror){
+  const g = stencilCanvas.getContext('2d', {willReadFrequently:true});
+  const side = Math.min(sw, sh), sx = (sw - side) / 2, sy = (sh - side) / 2;
+  g.save();
+  if (mirror){ g.translate(STENCIL, 0); g.scale(-1, 1); }
+  g.drawImage(src, sx, sy, side, side, 0, 0, STENCIL, STENCIL);
+  g.restore();
+  const px = g.getImageData(0, 0, STENCIL, STENCIL).data;
+  const lum = new Float32Array(STENCIL * STENCIL);
+  let lo = 1, hi = 0;
+  for (let i = 0; i < lum.length; i++){
+    const v = (0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]) / 255;
+    lum[i] = v; if (v < lo) lo = v; if (v > hi) hi = v;
+  }
+  const range = Math.max(0.1, hi - lo);
+  const dots = new Uint8Array(lum.length);
+  for (let y = 0; y < STENCIL; y++) for (let x = 0; x < STENCIL; x++){
+    const i = y * STENCIL + x, n = (lum[i] - lo) / range;
+    dots[i] = n < (BAYER[(y % 4) * 4 + (x % 4)] + .5) / 16 * 0.85 ? 1 : 0;
+  }
+  return dots;
+}
+
+function cocoaActions(mode){
+  const upload = `<label class="caption pdg-btn pdg-btn--secondary filebtn">Upload a photo<input type="file" accept="image/*" data-action-file="upload"></label>`;
+  $('#cocoaActions').innerHTML = mode === 'captured'
+    ? `<button class="body pdg-btn pdg-btn--primary" data-action="usePortrait">Use this portrait</button>
+       <button class="body pdg-btn pdg-btn--secondary" data-action="retake">${camStream ? 'Retake' : 'Try again'}</button>
+       <button class="body pdg-btn pdg-btn--ghost" data-action="closeCocoa">Cancel</button>`
+    : `${mode === 'live' ? `<button class="body pdg-btn pdg-btn--primary" data-action="snap">Take photo</button>` : ''}
+       ${upload}
+       ${state.portraits[cocoaFor] ? `<button class="body pdg-btn pdg-btn--ghost" data-action="removePortrait">Remove portrait</button>` : ''}
+       <button class="body pdg-btn pdg-btn--ghost" data-action="closeCocoa">Cancel</button>`;
+}
+
+function liveLoop(){
+  const v = $('#cam');
+  const tick = () => { if (v.videoWidth) drawLatte(stencilFrom(v, v.videoWidth, v.videoHeight, true)); liveRaf = requestAnimationFrame(tick); };
+  tick();
+}
+
+async function openCocoa(line){
+  cocoaFor = line; captured = null;
+  $('#cocoaTitle').textContent = `Cocoa portrait on your ${ITEMS[line.split('|')[0]].name}`;
+  drawLatte(null);
+  $('#camMsg').textContent = 'Asking for your camera…';
+  cocoaActions('idle');
+  $('#cocoa').showModal();
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:{ideal:640}, height:{ideal:640}}, audio:false});
+    const v = $('#cam'); v.srcObject = camStream; await v.play();
+    $('#camMsg').textContent = 'Live preview. This is what the duster will print.';
+    cocoaActions('live');
+    liveLoop();
+  } catch (err){
+    $('#camMsg').textContent = err && err.name === 'NotAllowedError'
+      ? 'Camera access is off. You can upload a photo instead.'
+      : 'No camera found. You can upload a photo instead.';
+    cocoaActions('idle');
+  }
+}
+
+function stopCam(){
+  cancelAnimationFrame(liveRaf); liveRaf = null;
+  if (camStream){ camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+}
+
+function snap(){
+  cancelAnimationFrame(liveRaf); liveRaf = null;
+  captured = $('#latte').toDataURL('image/png');
+  $('#camMsg').textContent = 'Looking good. Use it, or retake.';
+  cocoaActions('captured');
+}
+
+function retake(){
+  captured = null;
+  if (camStream){ cocoaActions('live'); $('#camMsg').textContent = 'Live preview. This is what the duster will print.'; liveLoop(); }
+  else { drawLatte(null); cocoaActions('idle'); $('#camMsg').textContent = 'Upload a photo to preview it.'; }
+}
+
+function closeCocoa(){ stopCam(); $('#cocoa').close(); }
+$('#cocoa').addEventListener('close', stopCam);
+
+// ---------- Actions ----------
+function setSpot(s){
+  state.spot = s;
+  state.spotError = '';
+  state.join = 'join';
+  if (state.notice === 'help') state.notice = '';
+  render();
+}
+
+function placeOrder(){
+  if (scenario.soldOutOnSubmit && !state.soldNow){
+    const first = cartLines()[0];
+    if (first){ state.soldNow = first.id; render(); return; }
+  }
+  const items = cartLines();
+  state.order = {
+    number: String(400 + Math.floor(Math.random() * 99)),
+    spot: {...state.spot},
+    joined: joined(),
+    pay: state.pay,
+    items,
+    portraits: {...state.portraits},
+    total: cartTotal(),
+    eta: items.some(l => l.kitchen) ? 12 : 8,
+    status: 0
+  };
+  state.cart = {}; state.portraits = {}; state.soldNow = null; state.notice = ''; state.buddyHidden = false;
+  startTimer();
+  render();
+  $('#side').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function advance(){
+  if (!state.order) return;
+  state.order.status = Math.min(TRACK.length - 1, state.order.status + 1);
+  if (state.order.status === TRACK.length - 1) clearInterval(timer);
+  if (state.notice === 'moved') state.notice = '';
+  render();
+}
+function startTimer(){ clearInterval(timer); timer = setInterval(advance, STEP_MS); }
+
+function newOrder(addId){
+  clearInterval(timer);
+  const spot = state.order ? state.order.spot : state.spot;
+  state = {...fresh(), spot, filter:state.filter};
+  render();
+  if (addId){ if (ITEMS[addId].milk) openMilk(addId); else { addLine(keyOf(addId)); render(); } }
+}
+
+function mapPoint(e){
+  const r = $('#map').getBoundingClientRect();
+  const c = Math.min(COLS - 1, Math.max(0, Math.floor((e.clientX - r.left) / r.width * COLS)));
+  const row = Math.min(ROWS - 1, Math.max(0, Math.floor((e.clientY - r.top) / r.height * ROWS)));
+  return {c, r:row};
+}
+
+document.addEventListener('click', e => {
+  const map = e.target.closest('#map');
+  if (map && !map.classList.contains('is-locked')){ setSpot(mapPoint(e)); return; }
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const a = el.dataset.action, id = el.dataset.id, line = el.dataset.line;
+  if (a === 'filter'){ state.filter = el.dataset.cat; render(); }
+  if (a === 'inc'){ addLine(line); render(); }
+  if (a === 'dec'){ state.cart[line] = Math.max(0, (state.cart[line] || 0) - 1); if (!state.cart[line]){ delete state.cart[line]; delete state.portraits[line]; } render(); }
+  if (a === 'remove'){ delete state.cart[line]; delete state.portraits[line]; render(); }
+  if (a === 'toSide') $('#side').scrollIntoView({behavior:'smooth', block:'start'});
+  // Milk picker
+  if (a === 'pickMilk') openMilk(id, line);
+  if (a === 'milkPrev') swapMilk(milkIdx - 1);
+  if (a === 'milkNext') swapMilk(milkIdx + 1);
+  if (a === 'milkSet') swapMilk(+el.dataset.idx);
+  if (a === 'milkConfirm') confirmMilk();
+  if (a === 'closeMilk') $('#milk').close();
+  // Cocoa portrait
+  if (a === 'portrait') openCocoa(line);
+  if (a === 'snap') snap();
+  if (a === 'retake') retake();
+  if (a === 'usePortrait'){ state.portraits[cocoaFor] = captured; closeCocoa(); render(); }
+  if (a === 'removePortrait'){ delete state.portraits[cocoaFor]; closeCocoa(); render(); }
+  if (a === 'closeCocoa') closeCocoa();
+  // Location and order
+  if (a === 'copySpot'){
+    const s = state.order && !state.moving ? state.order.spot : state.spot;
+    navigator.clipboard?.writeText(wordsFor(s.c, s.r)).then(() => { el.textContent = 'Copied'; setTimeout(() => { el.textContent = 'Copy spot'; }, 1500); });
+  }
+  if (a === 'help'){ state.notice = 'help'; render(); }
+  if (a === 'move'){ state.moving = true; state.spot = null; state.notice = ''; render(); $('#map').scrollIntoView({behavior:'smooth', block:'center'}); $('#map').focus({preventScroll:true}); }
+  if (a === 'cancelMove'){ state.moving = false; state.spot = state.order.spot; render(); }
+  if (a === 'confirmMove'){ state.order.spot = {...state.spot}; state.moving = false; state.notice = 'moved'; render(); }
+  if (a === 'again') newOrder(id);
+  if (a === 'popBuddy') popBuddy();
+  if (a === 'hideBuddy'){ state.buddyHidden = true; render(); }
+  // Prototype controls
+  if (a === 'advance') advance();
+  if (a === 'restart'){ clearInterval(timer); state = fresh(); render(); window.scrollTo({top:0}); }
+  if (a === 'qr'){ clearInterval(timer); state = fresh(); setSpot({c:14, r:7}); }
+});
+
+document.addEventListener('keydown', e => {
+  // ←/→ swap milks anywhere in the milk picker
+  if ($('#milk').open && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')){
+    e.preventDefault();
+    swapMilk(milkIdx + (e.key === 'ArrowRight' ? 1 : -1));
+    $(`.milk-opt[data-idx="${milkIdx}"]`).focus();
+    return;
+  }
+  // Arrow keys nudge your square; the first press drops it in the middle of the room
+  if (e.target.id !== 'map' || e.target.classList.contains('is-locked')) return;
+  const d = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]}[e.key];
+  if (!d) return;
+  e.preventDefault();
+  const s = state.spot || {c:8, r:6};
+  setSpot(state.spot ? {c:Math.min(COLS - 1, Math.max(0, s.c + d[0])), r:Math.min(ROWS - 1, Math.max(0, s.r + d[1]))} : s);
+  $('#map').focus();
+});
+
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.name === 'join'){ state.join = el.value; render(); }
+  if (el.name === 'pay'){ state.pay = el.value; render(); }
+  if (el.dataset.scenario){ scenario[el.dataset.scenario] = el.checked; if (el.dataset.scenario === 'soldOutOnSubmit') state.soldNow = null; render(); }
+  if (el.dataset.actionFile === 'upload' && el.files[0]){
+    stopCam();
+    const img = new Image();
+    img.onload = () => { drawLatte(stencilFrom(img, img.naturalWidth, img.naturalHeight, false)); URL.revokeObjectURL(img.src); snap(); };
+    img.src = URL.createObjectURL(el.files[0]);
+  }
+});
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'name') state.name = e.target.value;
+  if (e.target.id === 'notes') state.notes = e.target.value;
+});
+
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.target.dataset.form;
+  if (form === 'spot'){
+    const raw = e.target.spotWords.value.trim().toLowerCase();
+    const parts = raw.split(/[\s.·,/]+/).filter(Boolean);
+    const s = SPOT_BY_WORDS.get(parts.join('.'));
+    if (!raw) state.spotError = `Type the three words, like ${EXAMPLE}.`;
+    else if (parts.length !== 3) state.spotError = `A spot is exactly three words, like ${EXAMPLE}.`;
+    else if (!s) state.spotError = `We couldn't find ${esc(parts.join('.'))} in the cafe. Check the spelling.`;
+    else if (spotProblem(s)) state.spotError = spotProblem(s);
+    else return setSpot(s);
+    render();
+    $('#spotWords').focus();
+  }
+  if (form === 'order') placeOrder();
+});
+
+// Deep link from the sticker on a table: ?spot=three.word.name
+const deep = SPOT_BY_WORDS.get((new URLSearchParams(location.search).get('spot') || '').toLowerCase());
+if (deep && !spotProblem(deep)) state.spot = deep;
+render();
+</script>
+</body>
+</html>

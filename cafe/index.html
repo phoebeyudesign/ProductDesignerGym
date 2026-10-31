@@ -1,79 +1,39 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Product Designer Gym Cafe</title>
-<script src="./support.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Take away · Product Designer Gym Cafe</title>
+  <meta name="description" content="Take your café favourites to go, or order straight to your table. Choose how you want to enjoy your break.">
+  <link rel="stylesheet" href="../design-system/tokens.css">
+  <link rel="stylesheet" href="../design-system/components/bundle.css">
+  <link rel="stylesheet" href="home.css">
+  <script src="home.js" defer></script>
 </head>
-<body>
-<x-dc>
-<helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../design-system/tokens.css">
-<link rel="stylesheet" href="../design-system/components/bundle.css">
-<style>body{margin:0;background:var(--background)}a{color:var(--primary);text-decoration:none}a:hover{color:var(--primary-hover)}a:focus-visible{outline:var(--focus-ring-width) solid var(--primary);outline-offset:2px;border-radius:var(--radius-1)}</style>
-</helmet>
-<div style="background:var(--background);color:var(--text);font:var(--text-body);min-height:100vh">
-<nav style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);padding:var(--space-4) var(--space-5);border-bottom:var(--border-width) solid var(--border);flex-wrap:wrap">
-<div style="font:var(--text-h4);color:var(--text)">Product Designer Gym <span style="color:var(--primary)">Cafe</span></div>
-<div style="display:flex;gap:var(--space-5);align-items:center;flex-wrap:wrap">
-<a href="#menu" style="color:var(--text)">Menu</a><a href="#visit" style="color:var(--text)">Visit</a>
-</div></nav>
-
-<header style="max-width:1120px;margin:0 auto;padding:var(--space-7) var(--space-5);display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--space-7);align-items:center">
-<div style="display:flex;flex-direction:column;gap:var(--space-5)">
-<div style="font:var(--text-caption);font-weight:600;color:var(--text-muted)">Coffee for the design practice</div>
-<h1 style="margin:0;font:var(--text-h1);text-wrap:balance">Fuel up. Then ship something good.</h1>
-<p style="margin:0;color:var(--text-muted);font:var(--text-body);max-width:480px">Product Designer Gym Cafe is the training floor's coffee bar: strong espresso, honest food and long tables for sketching, critiques and deep work.</p>
-<div style="display:flex;gap:var(--space-4);flex-wrap:wrap">
-<a href="#menu" style="background:var(--primary);color:var(--on-primary);font:var(--text-body);font-weight:600;padding:var(--space-3) var(--space-5);border-radius:var(--radius-2);outline-offset:2px" style-focus="outline:var(--focus-ring-width) solid var(--primary);outline-offset:2px" style-hover="background:var(--primary-hover);color:var(--on-primary)">See the menu</a>
-</div></div>
-<img src="uploads/Cafe.png" alt="Product Designer Gym Cafe neon sign" style="width:100%;height:auto;display:block;border-radius:var(--radius-4)">
-</header>
-
-<section id="menu" style="max-width:1120px;margin:0 auto;padding:var(--space-7) var(--space-5);display:flex;flex-direction:column;gap:var(--space-5)">
-<h2 style="margin:0;font:var(--text-h2)">The menu</h2>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-4)">
-<sc-for list="{{ menu }}" as="m" hint-placeholder-count="4">
-<div style="background:var(--surface);border:var(--border-width) solid var(--border);border-radius:var(--radius-3);padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-2)">
-<div style="display:flex;justify-content:space-between;gap:var(--space-4)"><h3 style="margin:0;font:var(--text-h4)">{{ m.name }}</h3><span style="color:var(--primary);font-weight:600">{{ m.price }}</span></div>
-<div style="font:var(--text-caption);color:var(--text-muted)">{{ m.desc }}</div>
-</div>
-</sc-for>
-</div></section>
-
-<section id="visit" style="max-width:1120px;margin:0 auto;padding:var(--space-7) var(--space-5)">
-<div style="background:var(--surface);border:var(--border-width) solid var(--border);border-radius:var(--radius-4);padding:var(--space-7) var(--space-5);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-5)">
-<div style="display:flex;flex-direction:column;gap:var(--space-4)"><h2 style="margin:0;font:var(--text-h2)">Come train with us</h2>
-<p style="margin:0;color:var(--text-muted)">Walk-ins welcome. Desks can be held for up to two hours.</p>
-</div>
-<div style="display:flex;flex-direction:column;gap:var(--space-2)"><h3 style="margin:0;font:var(--text-h4)">Hours</h3>
-<div style="color:var(--text-muted)">Mon–Fri 7:30–18:00</div><div style="color:var(--text-muted)">Sat–Sun 9:00–16:00</div>
-<h3 style="margin:var(--space-4) 0 0;font:var(--text-h4)">Find us</h3><div style="color:var(--text-muted)">Address to be added</div></div>
-</div></section>
-<footer style="padding:var(--space-5);text-align:center;font:var(--text-caption);color:var(--text-muted);border-top:var(--border-width) solid var(--border)">© Product Designer Gym Cafe</footer>
-</div>
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  renderVals() {
-    return {
-      menu: [
-        {name:'Flat White',price:'$4.50',desc:'Double ristretto, silky microfoam.'},
-        {name:'Cold Brew Set',price:'$5.00',desc:'18-hour steep, served over a big cube.'},
-        {name:'Protein Bowl',price:'$12',desc:'Grains, egg, greens, tahini.'},
-        {name:'Pastry Pass',price:'$3.80',desc:'Daily bake from the counter.'}
-      ],
-      sessions: [
-        {when:'Tue 18:30',title:'Critique Circuit',note:'Bring one screen, get three perspectives.'},
-        {when:'Thu 12:30',title:'Lunch & Sketch',note:'30-minute drawing sprint.'},
-        {when:'Sat 10:00',title:'Portfolio Workout',note:'Small groups, honest feedback.'}
-      ]
-    };
-  }
-}
-</script>
+<body class="body" data-mode="takeaway">
+  <a class="home-skip caption" href="#ordering">Skip to ordering</a>
+  <header class="home-header">
+    <div class="home-bar">
+      <a class="home-brand h4" href="./">Product Designer Gym <span>Cafe</span></a>
+      <div class="mode-switch" role="tablist" aria-label="How would you like to order?">
+        <button id="takeaway-tab" class="mode-tab caption" role="tab" aria-selected="true" aria-controls="takeaway-panel" data-mode="takeaway">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8ZM8 9V6a4 4 0 0 1 8 0v3"/></svg><span>Take away</span>
+        </button>
+        <button id="table-tab" class="mode-tab caption" role="tab" aria-selected="false" aria-controls="table-panel" tabindex="-1" data-mode="table">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M6 10v11m12-11v11M7 7V3m10 4V3M3 17h3m12 0h3"/></svg><span>Order to table</span>
+        </button>
+      </div>
+      <span id="mode-hint" class="mode-hint small" aria-live="polite">Made for your next stop.</span>
+    </div>
+  </header>
+  <main id="ordering" tabindex="-1">
+    <section id="takeaway-panel" class="order-panel" role="tabpanel" aria-labelledby="takeaway-tab">
+      <iframe id="takeaway-view" src="pickup/?home=1" title="Take away ordering — customise your order and choose a pickup time"></iframe>
+    </section>
+    <section id="table-panel" class="order-panel" role="tabpanel" aria-labelledby="table-tab" hidden>
+      <iframe id="table-view" title="Order to table — choose your spot and order from your seat"></iframe>
+    </section>
+  </main>
+  <noscript><p>Choose <a href="pickup/">take away</a> or <a href="order/">order to table</a>. JavaScript is required for interactive ordering.</p></noscript>
 </body>
 </html>
