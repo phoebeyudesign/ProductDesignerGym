@@ -7,14 +7,14 @@ body { margin: 0; background: var(--background); color: var(--text); font-family
 
 /* Button */
 .pdg-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 40px; padding: 0 var(--space-4); border: var(--border-width) solid transparent; border-radius: var(--radius-2); font-weight: 600; cursor: pointer; text-decoration: none; transition: background-color .12s, border-color .12s, color .12s; }
-.pdg-btn:focus-visible { outline: var(--focus-ring-width) solid var(--primary); outline-offset: 2px; }
+.pdg-btn:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring); outline-offset: 2px; }
 .pdg-btn--primary { background: var(--primary); color: var(--on-primary); }
 .pdg-btn--primary:hover { background: var(--primary-hover); }
 .pdg-btn--secondary { background: transparent; color: var(--text); border-color: var(--text-muted); }
-.pdg-btn--secondary:hover { border-color: var(--primary-hover); color: var(--primary-hover); }
-.pdg-btn--ghost { background: transparent; color: var(--primary); }
-.pdg-btn--ghost:hover { color: var(--primary-hover); text-decoration: underline; }
-.pdg-btn--destructive { background: var(--error); color: var(--on-primary); }
+.pdg-btn--secondary:hover { border-color: var(--primary-text-hover); color: var(--primary-text-hover); }
+.pdg-btn--ghost { background: transparent; color: var(--primary-text); }
+.pdg-btn--ghost:hover { color: var(--primary-text-hover); text-decoration: underline; }
+.pdg-btn--destructive { background: var(--error); color: var(--on-error); }
 .pdg-btn:disabled, .pdg-btn[aria-disabled="true"] { background: var(--surface); color: var(--text-muted); border-color: var(--border); cursor: not-allowed; text-decoration: none; }
 
 /* Input */
@@ -24,7 +24,7 @@ body { margin: 0; background: var(--background); color: var(--text); font-family
 .pdg-input { box-sizing: border-box; width: 100%; padding: var(--space-3); background: var(--surface); color: var(--text); border: var(--border-width) solid var(--border); border-radius: var(--radius-2); }
 .pdg-input::placeholder { color: var(--text-muted); }
 .pdg-input:hover { border-color: var(--text-muted); }
-.pdg-input:focus-visible { outline: var(--focus-ring-width) solid var(--primary); outline-offset: 2px; border-color: var(--primary); }
+.pdg-input:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring); outline-offset: 2px; border-color: var(--focus-ring); }
 .pdg-field--error .pdg-input { border-color: var(--error); }
 .pdg-field--error .pdg-field__hint { color: var(--error); }
 

@@ -1,22 +1,43 @@
-A dark, neon-lit system for Product Designer Gym: interfaces that feel like a training floor for design skills — a dark canvas, one electric-blue action colour, and plain, confident DM Sans type.
+A neon-lit system for Product Designer Gym: interfaces that feel like a training floor for design skills, in two themes. **Dark** is a dark canvas with one electric-blue action colour; **Light** is a warm off-white canvas with ink text and one lime action colour. Both use plain, confident DM Sans type.
 
 ## Brand
 
 - Write the name as **Product Designer Gym** — three words, title case, never abbreviated in UI copy.
-- The logo is a photographed neon sign: a flexed-arm icon inside a design-tool selection frame (corner handles), a sparkle and a cursor, over the stacked wordmark. Use `product-designer-gym-neon.png` from **Logos** as a hero or brand image on `background`; it carries its own brick-wall backdrop, so never place it on a light ground or crop the sign's glow tightly.
+- The logo is a photographed neon sign: a flexed-arm icon inside a design-tool selection frame (corner handles), a sparkle and a cursor, over the stacked wordmark. Use `product-designer-gym-neon.png` from **Logos** as a hero or brand image; it carries its own brick-wall backdrop, so never crop the sign's glow tightly. In the Light theme, show it as a contained, rounded photo (`radius-5`) so its dark backdrop reads as a framed image, never cut out onto the off-white canvas.
 - The sign's violet sparkle, pink frame and orange cursor belong to the logo image only. They are **not** UI colours: interfaces use the tokens below.
 - No vector mark has been supplied, so there is no small-size logo or favicon yet. Do not redraw the sign; set the name in `h4` / `text` where a compact mark is needed.
 
 ## Colour
 
-The system has one theme, **Dark**.
+The system has two themes, **Dark** (default) and **Light**. They share the same token names, so components never change: switch with `data-theme="dark"` / `data-theme="light"` on `<html>` or on any container.
+
+| Token | Dark | Light |
+|---|---|---|
+| primary | #00BFFF | #E4F222 |
+| primary-hover | #33CCFF | #D3E10F |
+| on-primary | #111318 | #1A1919 |
+| primary-text | = primary | #5A6200 |
+| primary-text-hover | = primary-hover | #1A1919 |
+| focus-ring | = primary | #1A1919 |
+| background | #111318 | #F4F2EE |
+| surface | #1B1F2A | #FFFFFF |
+| text | #F5F5F5 | #1A1919 |
+| text-muted | #C4CAD4 | #5F5B55 |
+| border | #515867 | #D9D5CE |
+| success | #00E676 | #157A43 |
+| warning | #FFD166 | #8F5A00 |
+| error | #FF6B6B | #C62828 |
+| on-error | #111318 | #FFFFFF |
+
+The Light values come from the Product Designer Gym Light site. Its success (#1F9D55) and warning (#C27C0E) were darkened to #157A43 and #8F5A00 so they pass 4.5:1 as text, and an error red was added because the site has none.
 
 - Paint the app canvas `background`; cards, modals and input fields `surface`.
 - Set headings and body copy in `text`; secondary text, hints and descriptions in `text-muted`.
-- Use `primary` for primary actions, links and active elements, and `primary-hover` only for their hover state — it is not a second brand colour.
-- Label any `primary`, `primary-hover` or `error` fill with `on-primary` (the dark canvas colour). White on `primary` is 1.9:1 and fails.
+- Use `primary` as the fill for primary actions and active elements, and `primary-hover` only for its hover state — it is not a second brand colour.
+- Use `primary-text` (and `primary-text-hover`) whenever the primary colour is text, an icon or an outline: links, ghost buttons, selected outlines. In Dark it equals `primary`; in Light it is olive, because lime is 1.1:1 on the canvas.
+- Label any `primary` or `primary-hover` fill with `on-primary` (the dark canvas in Dark, ink in Light), and any `error` fill with `on-error`. White on `primary` fails in both themes.
 - Use `success` for successful outcomes, `warning` for caution and `error` for errors or destructive actions. Never signal status through colour alone: pair it with an icon and a word (see **StatusBadge**).
-- Use `border` for dividers, outlines and input borders. It measures 2.6:1 on `background` and 2.3:1 on `surface`, under the 3:1 recommended for control boundaries — rely on the field's `surface` fill and its label as well as the outline, and use the `primary` focus ring to mark the active field.
+- Use `border` for dividers, outlines and input borders. It is under the 3:1 recommended for control boundaries in both themes (Dark 2.6:1 / 2.3:1, Light 1.3:1 / 1.5:1) — rely on the field's label and fill as well as the outline, and use the `focus-ring` to mark the active field.
 - Check contrast for each actual pairing; target WCAG AA — 4.5:1 for normal text, 3:1 for large text and for meaningful graphics and control boundaries.
 
 ## Typography
@@ -45,8 +66,8 @@ The system has one theme, **Dark**.
 ## Interaction
 
 - One visually dominant primary button per screen or task area; everything else is secondary or ghost.
-- Every interactive element shows a visible keyboard focus state: a solid `focus-ring-width` `primary` ring with a 2px offset (8.8:1 on `background`, 7.8:1 on `surface`).
-- Destructive actions use `error` and say what they destroy ("Delete workout").
+- Every interactive element shows a visible keyboard focus state: a solid `focus-ring-width` `focus-ring` ring with a 2px offset (Dark: electric blue, 8.8:1; Light: ink, 15.7:1).
+- Destructive actions use an `error` fill with an `on-error` label and say what they destroy ("Delete workout").
 
 ## Iconography
 

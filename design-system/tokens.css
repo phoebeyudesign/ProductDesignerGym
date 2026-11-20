@@ -1,8 +1,12 @@
 /* Product Designer Gym — generated from tokens.json */
 :root, [data-theme="dark"] {
+  color-scheme: dark;
   --primary: #00BFFF;
   --primary-hover: #33CCFF;
   --on-primary: var(--background);
+  --primary-text: var(--primary);
+  --primary-text-hover: var(--primary-hover);
+  --focus-ring: var(--primary);
   --background: #111318;
   --surface: #1B1F2A;
   --text: #F5F5F5;
@@ -11,6 +15,25 @@
   --success: #00E676;
   --warning: #FFD166;
   --error: #FF6B6B;
+  --on-error: var(--background);
+}
+[data-theme="light"] {
+  color-scheme: light;
+  --primary: #E4F222;
+  --primary-hover: #D3E10F;
+  --on-primary: #1A1919;
+  --primary-text: #5A6200;
+  --primary-text-hover: #1A1919;
+  --focus-ring: #1A1919;
+  --background: #F4F2EE;
+  --surface: #FFFFFF;
+  --text: #1A1919;
+  --text-muted: #5F5B55;
+  --border: #D9D5CE;
+  --success: #157A43;
+  --warning: #8F5A00;
+  --error: #C62828;
+  --on-error: #FFFFFF;
 }
 :root {
   --space-1: 4px;
